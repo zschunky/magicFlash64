@@ -1,0 +1,6 @@
+build/
+*.tar
+*.gz
+*.zip
+*.bak
+*.sw*
