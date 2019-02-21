@@ -3,12 +3,7 @@
 The magicFlash64 is a kernal replacement for the Commodore 64 (no matter if PAL or NTSC). In total it offers 64 8KB slots (one slot has the size of one kernal) which can be used to store kernals, basic and programs. Writing slots can be done within the Commodore 64 by using a programmer application without the need to remove the Flash IC and program it on a external programmer. The magicFlash64 utilizes the flash memory AM29F040 and an Atmega48 micro controller. Originally it was planned to name the project easy kernal. Unfortunately it turned out this name was already used for a different C64 project and therefore project name magicFlash64 was born. On some PCBs you may still find the name easy kernal.
 The build environment is based on gnu make Makefiles. Compiling and linking the firmware for the micro controller Atmega48 utilizes the avr-gcc compiler chain. Compiling and linking of C64 tools/kernals is based on the CC65 compiler chain. All syntax is based on these compiler chains.
 ## downloads
-[magicFlash64 schematics](downloads/magicFlash64_v0.2_schematics.pdf) version 0.2
-[magicFlash64 assembly diagram](downloads/magicFlash64_v0.2_Bestueckung.pdf) version 0.2
-[magicFlash64 programmer application](ek-programmer.prg) version 07.02.2019
-[magicFlash64 menu](downloads/ek-menu.bin) version 07.02.2019
-[magicFlash64 firmware update](downloads/ek-fw-update.prg) version v0.2 15.02.2019
-[magicFlash64 communication test application](downloads/ek-test.prg) version 07.02.2019
+Binary downloads can be found under releases.
 
 ## hardware
 The current version of the hardware is 0.2.
