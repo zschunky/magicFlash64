@@ -166,7 +166,6 @@ helpFrame:
 
 .export help1
 help1:
-  
   frameAddrTitle 38,23
   .byte $f0+WHITE
   screenLine $80+36,32                                                                       ;
@@ -235,4 +234,29 @@ help3:
   screenLine " click F7.                          "
   screenLine "                                    "
   screenLine "                                    "
+  screenLine "       <SPACE> for next page        ",$80
+
+.export help4
+help4:
+  frameAddrTitle 38,23
+  .byte $f0+WHITE
+  screenLine "                                    "
+  screenLine " (c) 2019                           "
+  screenLine " Andreas Zschunke                   "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "           visit:                   "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine " github.com/zschunky/magicFlash64   "
+  screenLine "                                    "
   screenLine "     <SPACE> to close this help     ",$80
+

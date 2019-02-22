@@ -24,6 +24,8 @@
 .include "pla.inc"
 .include "screenCpy.inc"
 .include "injectInt.inc"
+.include "qrcode.inc"
+.include "menuFrame.inc"
 
 
 
@@ -133,7 +135,7 @@ slotInit:
 
 .export selectSlotMenu
 selectSlotMenu:
-select drawSlotKernal, drawSlotKernalSpace, selectedSlot, 13, #64, {KEY_RETURN,KEY_0,KEY_1,KEY_2,KEY_3,KEY_4,KEY_5,KEY_6,KEY_7,KEY_8,KEY_9,KEY_K,KEY_P,KEY_C,KEY_CRSR_LR}, {keyReturn-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyK-1,keyP-1,keyC-1,keyLR-1}, slotCheck
+select drawSlotKernal, drawSlotKernalSpace, selectedSlot, 13, #64, {KEY_RETURN,KEY_0,KEY_1,KEY_2,KEY_3,KEY_4,KEY_5,KEY_6,KEY_7,KEY_8,KEY_9,KEY_K,KEY_P,KEY_C,KEY_CRSR_LR,KEY_F1}, {keyReturn-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyK-1,keyP-1,keyC-1,keyLR-1,keyF1-1}, slotCheck
 
 
 .export drawSlotKernalSpace
@@ -352,6 +354,108 @@ getNumKey:
   bne :-
 :
   rts
+
+.export keyF1
+keyF1:
+  lda #<helpFrame
+  ldx #>helpFrame
+  jsr _screenCpy
+
+  lda #<help1
+  ldx #>help1
+  jsr _screenCpy
+
+:
+  ldax #KEY2MASK(KEY_SPACE)
+  jsr isKeyDown
+  beq :-
+
+  ldy #16
+  ldx #0
+:
+  inx
+  bne :-
+  dey
+  bne :-
+:
+  ldax #KEY2MASK(KEY_SPACE)
+  jsr isKeyDown
+  bne :-
+
+  lda #<help2
+  ldx #>help2
+  jsr _screenCpy
+
+:
+  ldax #KEY2MASK(KEY_SPACE)
+  jsr isKeyDown
+  beq :-
+
+  ldy #16
+  ldx #0
+:
+  inx
+  bne :-
+  dey
+  bne :-
+:
+  ldax #KEY2MASK(KEY_SPACE)
+  jsr isKeyDown
+  bne :-
+
+  lda #<help3
+  ldx #>help3
+  jsr _screenCpy
+
+:
+  ldax #KEY2MASK(KEY_SPACE)
+  jsr isKeyDown
+  beq :-
+
+  ldy #16
+  ldx #0
+:
+  inx
+  bne :-
+  dey
+  bne :-
+:
+  ldax #KEY2MASK(KEY_SPACE)
+  jsr isKeyDown
+  bne :-
+
+  lda #<help4
+  ldx #>help4
+  jsr _screenCpy
+  ldx #14
+:
+  .repeat 15,i
+     lda qrcode +i*15,x
+     sta $0400+20+(i+4)*40,x
+  .endrepeat
+     dex
+     bpl :-
+
+
+:
+  ldax #KEY2MASK(KEY_SPACE)
+  jsr isKeyDown
+  beq :-
+
+  ldy #16
+  ldx #0
+:
+  inx
+  bne :-
+  dey
+  bne :-
+:
+  ldax #KEY2MASK(KEY_SPACE)
+  jsr isKeyDown
+  bne :-
+
+  jsr menuFrame
+  jmp selectSlotMenu
 
 .export setSlotNamePtr
 setSlotNamePtr:

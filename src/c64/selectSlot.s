@@ -30,6 +30,7 @@
 .include "zeropage.inc"
 .include "selectFile.inc"
 .include "screenCpy.inc"
+.include "qrcode.inc"
 .macpack cbm
 
 .define SELECT_LEN 38
@@ -869,6 +870,36 @@ keyF1:
   jsr isKeyDown
   bne :-
 
+  lda #<help4
+  ldx #>help4
+  jsr _screenCpy
+  ldx #14
+:
+  .repeat 15,i
+     lda qrcode +i*15,x
+     sta $0400+20+(i+4)*40,x
+  .endrepeat
+     dex
+     bpl :-
+
+
+:
+  ldax #KEY2MASK(KEY_SPACE)
+  jsr isKeyDown
+  beq :-
+
+  ldy #16
+  ldx #0
+:
+  inx
+  bne :-
+  dey
+  bne :-
+:
+  ldax #KEY2MASK(KEY_SPACE)
+  jsr isKeyDown
+  bne :-
+
   jmp selectSlot
 
 colorTypes:
@@ -883,8 +914,3 @@ selectSlotScreenHi:
   .repeat 20,i
     .hibytes $0400+(i+4)*40+1
   .endrepeat
-
-
-
-
-

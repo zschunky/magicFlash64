@@ -18,6 +18,7 @@
 .include "c64.inc"
 .include "magicFlash64Colors.inc"
 .include "screenCpy.inc"
+.include "frame.inc"
 .macpack cbm
 
 ;incBegin
@@ -102,3 +103,104 @@ noCartFound:
   .lobytes $0400+(5)*40+18
   .hibytes $0400+(5)*40+18
   .byte SC WHITE,"NO",C_END
+
+.export helpFrame
+helpFrame:
+  frameTitle "HELP", 38, 23
+
+  
+.export help1
+help1:
+  frameAddrTitle 38,23
+  .byte $f0+WHITE
+  screenLine $80+36,32                                                                       ;
+  screenLine 32, 112, SR(3), 64,    " slot number                  "         ;+-------- slot number
+  screenLine 32, 93, 32, 32, 112,   " slot name                    "         ;|  |  | + slot name
+  screenLine 32, 93, 32, 32, 93,    "                              "                               ;|  |  | |
+  screenLine                  " 01-Kernal                          "         ;00-EP-B-Basic
+  screenLine "                                    "
+  screenLine " keyboard keys                      "
+  screenLine "       UP/DOWN...navigate           "
+  screenLine "    LEFT/RIGHT...select tab         "
+  screenLine "           0-9...jump to slot (2    "
+  screenLine "                 strokes required)  "
+  screenLine "             K...select kernal tab  "
+  screenLine "             P...select prg tab     "
+  screenLine "             C...select cart tab    "
+  screenLine "        RETURN...select entry       "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "       <SPACE> for next page        ",$80
+
+.export help2
+help2:
+  frameAddrTitle 38,23
+  .byte $f0+WHITE
+  screenLine "                                    "
+  screenLine " To start a kernal select the       "
+  screenLine " kernal tab and navigate to the     "
+  screenLine " desired kernal and click RETURN.   "
+  screenLine "                                    "
+  screenLine " To start a program select a kernal "
+  screenLine " first without clicking RETURN.     "
+  screenLine " Then select the prg tab and        "
+  screenLine " navigate to the desired program    "
+  screenLine " and click RETURN. In case no       "
+  screenLine " cartidge was detected the kernal   "
+  screenLine " will be started and the program    "
+  screenLine " will be autostarted. In case a     "
+  screenLine " cartidge was detected you will     "
+  screenLine " need to click restore once the     "
+  screenLine " basic prompt is visible to start   "
+  screenLine " the program.                       "
+  screenLine "                                    "
+  screenLine "       <SPACE> for next page        ",$80
+
+.export help3
+help3:
+  frameAddrTitle 38,23
+  .byte $f0+WHITE
+  screenLine "                                    "
+  screenLine " Starting a cart is not yet         "
+  screenLine " implemented.                       "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "       <SPACE> for next page        ",$80
+
+.export help4
+help4:
+  frameAddrTitle 38,23
+  .byte $f0+WHITE
+  screenLine "                                    "
+  screenLine " (c) 2019                           "
+  screenLine " Andreas Zschunke                   "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "           visit:                   "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine "                                    "
+  screenLine " github.com/zschunky/magicFlash64   "
+  screenLine "                                    "
+  screenLine "     <SPACE> to close this help     ",$80
