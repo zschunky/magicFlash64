@@ -46,6 +46,19 @@ reset:
   ; set stack
   ldx #<(__STACK_SIZE__-1)
   txs
+  cld
+
+  ; activate dram refresh
+  lda #8
+  sta VIC_CTRL2
+
+  ; activate dram
+  ldx #0
+:
+    sta $0100,x
+    inx
+    bne :-
+
 
   ; set nmi jmp vector
   lda #<nmiFunc

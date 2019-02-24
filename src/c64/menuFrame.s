@@ -8,9 +8,6 @@
 .include "textMenuEn.inc"
 .include "selectSlotMenu.inc"
 
-.define VERSION_MAJOR 0
-.define VERSION_MINOR 2
-
 .code
 .export menuFrame
 menuFrame:
@@ -27,7 +24,7 @@ menuFrame:
   lda #>slotScreenMenuVerPtr
   sta screenPtr+1
 
-  lda #VERSION_MAJOR
+  lda #VER_MENU_MAJOR
   jsr num8toDec16
   clc
   jsr screenNum16
@@ -41,7 +38,7 @@ menuFrame:
     inc screenPtr+1
 :
 
-  lda #VERSION_MINOR
+  lda #VER_MENU_MINOR
   jsr num8toDec16
   clc
   jsr screenNum16

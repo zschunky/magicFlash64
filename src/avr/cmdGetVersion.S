@@ -19,9 +19,9 @@
 
 .text
 cmdGetVersion:
-  ldi rTmp,VERSION_MAJOR
+  ldi rTmp,VER_FW_MAJOR
   rcall sendByte
-  ldi rTmp,VERSION_MINOR
+  ldi rTmp,VER_FW_MINOR
   rcall sendByte
   rjmp mainBegin
 

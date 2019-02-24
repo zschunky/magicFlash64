@@ -95,9 +95,6 @@
 #define yl r28
 #define yh r29
 
-#define VERSION_MAJOR 0
-#define VERSION_MINOR 3
-
 #define LED_FULL_CNT 39062
 #define LED_HALF_CNT (LED_FULL_CNT/2)
 

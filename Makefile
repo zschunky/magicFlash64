@@ -24,13 +24,16 @@ all: avr c64
 clean:
 	rm -rf $(BUILD_DIR)/*
 
+
+VERSION=-D VER_MENU_MAJOR=0 -D VER_MENU_MINOR=3 -D VER_PROGRAMMER_MAJOR=0 -D VER_PROGRAMMER_MINOR=3 -D VER_FW_MAJOR=0 -D VER_FW_MINOR=3 -D VER_TEST_MAJOR=0 -D VER_TEST_MINOR=1
+
 ## AVR build part ##
 
 AVR_BUILD_DIR=$(BUILD_DIR)/avr
 
 AVR=atmega48
 AVR_TARGET=mf64-firmware.bin
-AVR_CFLAGS+=-Wl,--section-start=.fwupd=0x0f00,-Map,$(AVR_BUILD_DIR)/avr.map
+AVR_CFLAGS+=-Wl,--section-start=.fwupd=0x0f00,-Map,$(AVR_BUILD_DIR)/avr.map $(VERSION)
 
 
 AVR_SRC=main.S cmdFwUpd.S cmdGetEeprom.S cmdGetRam.S cmdGetVersion.S cmdMcType.S cmdReset.S cmdSelect.S cmdSetEeprom.S cmdTest.S cmdWrModeErase.S cmdWrModeReset.S ram.S \
@@ -72,7 +75,7 @@ $(BUILD_DIR)/%.bin: $(AVR_BUILD_DIR)/%.elf
 
 C64_CC=cl65 -t c64
 C64_LD=ld65
-C64_CFLAGS=-Oir --asm-include-dir $(C64_BUILD_DIR) --bin-include-dir $(BUILD_DIR)
+C64_CFLAGS=-Oir --asm-include-dir $(C64_BUILD_DIR) --bin-include-dir $(BUILD_DIR) $(patsubst -D%,--asm-define%,$(VERSION))
 C64_LDFLAGS_MENU=-Oir  -C src/c64/kernal.cfg
 C64_LDFLAGS_PRG=-C src/c64/prgAsm.cfg
 C64_DA=da65 -S '$$e000' --comments 4

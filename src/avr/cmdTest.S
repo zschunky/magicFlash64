@@ -69,6 +69,9 @@ cmdTestWr:
 cmdTestWrLoop:
   waitWr
 
+  nop
+  nop
+
   in rTmp,ADDR_PIN
   andi rTmp,ADDR_MASK
 

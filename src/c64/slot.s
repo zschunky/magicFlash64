@@ -72,8 +72,6 @@ fileNamesSlot:
 fnDrive:
   .res 64
 
-.define VERSION_MAJOR 0
-.define VERSION_MINOR 2
 
 
 .code
@@ -84,7 +82,7 @@ slotInit:
   lda #>slotScreenProgVer
   sta screenPtr+1
 
-  lda #VERSION_MAJOR
+  lda #VER_PROGRAMMER_MAJOR
   jsr num8toDec16
   clc
   jsr screenNum16
@@ -98,7 +96,7 @@ slotInit:
     inc screenPtr+1
 :
 
-  lda #VERSION_MINOR
+  lda #VER_PROGRAMMER_MINOR
   jsr num8toDec16
   clc
   jsr screenNum16
