@@ -51,7 +51,7 @@
   .hibytes $0400 + ((25-(h))/2) * 40 + ((40-(w))/2)+121 + offset
 .endmacro
 
-.define frameTitleOffset(t) .strlen(t)+9
+.define frameTitleOffset(t) .strlen(t)+11
 .define frameTitleBodyOffset(w,h) $0400 + ((25-(h))/2) * 40 + ((40-(w))/2)
 .macro frameTitle t,w,h
   frameAddrAbs w,h

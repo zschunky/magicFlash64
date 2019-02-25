@@ -106,7 +106,7 @@ SRC_UPD=magicFlash64Lib.s magicFlash64LibPgm.s mainUpd.s zeropage.s breakPoint.s
 OBJECTS_UPD=$(patsubst %.s,$(C64_BUILD_DIR)/%.o,$(patsubst %.c,$(C64_BUILD_DIR)/%.o,$(SRC_UPD)))
 TARGET_UPD=mf64-fw-update.prg
 
-SRC_TEST=magicFlash64Lib.s mainTest.s  zeropage.s
+SRC_TEST=magicFlash64Lib.s mainTest.s  zeropage.s screenCpy.s num.s screenNum.s
 OBJECTS_TEST=$(patsubst %.s,$(C64_BUILD_DIR)/%.o,$(patsubst %.c,$(C64_BUILD_DIR)/%.o,$(SRC_TEST)))
 TARGET_TEST=mf64-test.prg
 

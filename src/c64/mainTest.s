@@ -16,8 +16,14 @@
 ; 
 
 .include "c64.inc"
+.include "magicFlash64Colors.inc"
 .include "magicFlash64Lib.inc"
 .include "zeropage.inc"
+.include "screenCpy.inc"
+.include "frame.inc"
+.include "num.inc"
+.include "screenNum.inc"
+.macpack cbm
 
 .zeropage
 .exportzp enMask
@@ -80,12 +86,57 @@ __LOADADDR__:
 __STARTUP__:
   sei
 
+  ; set lowercase char
+  lda #$17
+  sta VIC_VIDEO_ADR
+
+  ; set background color
+  lda #COLOR_BACKGROUND
+  sta VIC_BORDERCOLOR
+  sta VIC_BG_COLOR0
+
   ; disable interrupts/nmi from vic/cia
   lda #$9f
   sta CIA2_ICR
   sta CIA1_ICR
   lda #00
   sta VIC_IMR
+
+  lda #<testFrameVer
+  sta screenPtr
+  lda #>testFrameVer
+  sta screenPtr+1
+
+  lda #VER_TEST_MAJOR
+  jsr num8toDec16
+  clc
+  jsr screenNum16
+  jsr screenNum0
+
+  ldy #0
+  lda #46
+  sta (screenPtr),y
+  inc screenPtr
+  bne :+
+    inc screenPtr+1
+:
+
+  lda #VER_TEST_MINOR
+  jsr num8toDec16
+  clc
+  jsr screenNum16
+  jsr screenNum0
+    
+  ; clear screen
+  jsr _screenClear
+
+  lda #<testFrame
+  ldx #>testFrame
+  jsr _screenCpy
+
+  lda #<testText
+  ldx #>testText
+  jsr _screenCpy
 
   lda #0
   sta cnt
@@ -98,7 +149,7 @@ __STARTUP__:
   STEPA
 loop:
   lda cnt
-  sta $0400
+  ;sta $0400
 
   ; set rd/write regs
   lda cnt
@@ -153,7 +204,7 @@ rdBckCheck:
   ; read back
   jsr ekRead
 
-  sta $0401
+  ;sta $0401
   cmp cnt
   bne error
 
@@ -168,3 +219,28 @@ cont:
 error:
   inc $d020
   jmp error
+
+.export testFrame
+testFrame:
+  frameTitle "magicFlash64-test v       ", 32, 15
+testFrameVer=testFrame + frameTitleOffset "magicFlash64-test v"
+
+
+.export testText
+testText:
+  frameAddrTitle 32,15
+  screenLine SC(WHITE),"the test is now running, in   "
+  screenLine           "case the test fails the border"
+  screenLine           "will change. The power LED    "
+  screenLine           "will indicate the type of     "
+  screenLine           "fail:                         "
+  screenLine           "   LED off->readback fail     "
+  screenLine           "   LED on->read fail          "
+  screenLine           "   LED blinking->write fail   "
+  screenLine           "                              "
+  screenLine           "to stop the test power off the"
+  screenLine           "C64 (reset is not enough)     ",C_END
+
+
+
+
