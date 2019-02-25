@@ -62,7 +62,7 @@ When installing the magicFlash64 on a 250469 mainboard in C64C case which requir
 The magicFlash64 can be used in 24 pin or 28 pin kernal sockets. Jumpers will need to be set correctly depending on the used pin socket. There are also 2 ways of usage: a full populated magicFlash64 or a partly populated magicFlash64. The full populated magicFlash64 offers the possibilty to write and control the magicFlash64 via software from the Commodore 64. The partly populated magicFlash64 relies on external control via header pins (eg connected to a keyman). Modifying content of the flash memory cannot be done in partly populated mode via the Commodore 64 and the flash memory needs to be removed and programmed externally.
 ### 24 pin kernal replacement
 Supported Commodore 64 main boards are:
->- KU14194HB (not tested)
+- KU14194HB (not tested)
 - 326298 (not tested)
 - 250407
 - 250425
@@ -75,7 +75,7 @@ Following jumper settings are required to be used as 24 pin kernal replacement:
 While using the magicFlash64 on 24 pin socket the upper 2 pin rows will be outside of the socket (or shorter headers may be used during soldering).
 ### 28 pin kernal replacement
 Supported Commodore 64 main boards are:
->- 250469 (special keyboard mounts required for C64C cases with keyboard mounts)
+- 250469 (special keyboard mounts required for C64C cases with keyboard mounts)
 - 310378 (C64 Rom of C128, not yet tested)
 
 Following jumper settings are required to be used as 28 pin kernal replacement:
@@ -85,7 +85,7 @@ Following jumper settings are required to be used as 28 pin kernal replacement:
 The partly populated magicFlash64 needs to be controlled from the outside via the J1 pin header. The flash content can only be modified by manual removing the flash IC and programming it with an external programmer. With this partly populated magicFlash64 the magicFlash64 may also be used in other platforms like floppy drives etc.
 ## preparing a C64 mainboard
 In order to install a magicFlash64 on a  C64 mainboard several preparation need to be done. If the kernal ROM IC is soldered in it needs to be removed and a socket needs to be installed instead. In addition the magicFlash64 required 3 additional signals:
->- restore key (available on keyboard connector pin 3)
+- restore key (available on keyboard connector pin 3)
 - RW (available on any CIA pin 22)
 - reset (available on any CIA pin 34)
 
@@ -100,24 +100,27 @@ When using the magicFlash64 it requires kernals to be programmed inside the FLAS
 The restore key can trigger some task by holding restore. While holding the first power LED will go off for 2s, then it will go back on for 2s, it will then blinks for 2s and afterwards go off again. When releasing the restore key while the LED is solid a C64 reset will trigged. When releasing the restore key while the LED blinks the kernal slot 63 will be selected and a reset will be executed.
 ## magicFlash64 menu
 The magicFlash64 menu is a special kernal which allows you to select other kernals/carts and programs stored inside the flash of the magicFlash64. The kernal menu should be programmed in slot 63. It can be accessed in 2 ways:
->- press the restore key down and hold it till the power LED blinks and release it while blinking
+- press the restore key down and hold it till the power LED blinks and release it while blinking
 - press reset and hold it till the power LED blinks and release it
 
-![](pics/P_20190203_193504.jpg) 
-To navigate the magicFlash64 menu use the cursor keys or the joystick (joystick not yet implemented). Cursor up/down or joystick up/down will navigate between the slots. Cursor left/right or joystick left/right will navigate between kernal/cartridge/program selection. The return key or fire button will select and execute the selected slot.
+![](pics/P_20190222_200449.jpg) 
+To navigate the magicFlash64 menu use the cursor keys or the joystick (joystick not yet implemented). Cursor up/down or joystick up/down will navigate between the slots. Cursor left/right or joystick left/right will navigate between kernal/prg/cart tab. The return key or fire button will select and execute the selected slot.
 For fast jumping between slots type the slot number can be typed via the number keys (always 2 key strokes are required, for slot 1 type 01).
+
+When selecting the prg tab and executing a prg with the RETURN key the kernal which was chosen in the kernal tab will be started and in case no cartidge was detected the prg will automatically started. In case a cartidge was detected the prg file will not be auomtatically started. You will need to push the restore key to initiate the starting of prg when the basic prompt has been reached.
+
 The magicFlash64 menu also contains a lookup table about the used/free slots of the magicFlash64.
 
 To upgrade the magicFlash64 menu you have to use the magicFlash64 programmer application. Select slot 63 and chose program (click p). A file selection will pop up and you need to select the magicFlash64 menu binary file. Then click t and set the type to menu. Now you will need to apply these changes by clicking f7.
 ## magicFlash64 programmer
 The magicFlash64 programmer is application to erase and program the flash memory of the magicFlash64. When the application is started it will first check all 64 slots of the magicFlash64 to make sure empty slots are erased and programmed slots match to their crc.
-![](pics/P_20190203_193612.jpg) 
+![](pics/P_20190222_200554.jpg) 
 
 After checking completed it will prompt you for a temporary storage device. Since the smallest erase size of the flash memory is 64 KByte (8 slots) it is requires some external storage to tempory save slots which shall not be erased. In addition a REU or GEORAM will buffer new loaded files and it will be faster when loading them into magicFlash64 (GEORAM via Ultimate 1541 II+ seems to have some issues, REU with Ultimate 1541 II+ works fine).
-![](pics/P_20190203_193620.jpg) 
+![](pics/P_20190222_200307.jpg) 
  
 Finally you will enter the main screen of the magicFlash64 programmer application.
-![](pics/P_20190203_193637.jpg) 
+![](pics/P_20190222_200320.jpg) 
 The selection screen is split into a few columns separated by "-":
 
 |column       |description                                                                         |
@@ -152,7 +155,7 @@ Please also pay attention to slot 63. This slot is aimed to be the magicFlash64 
 The following articles are intendet to give some technical background on how the magicFlash64 works and how to program it.
 ### the micro controller
 The micro controller has only a few tasks:
->- monitor the restore key to perform reset or select the magicFlash64 slot for the magicFlash64 menu
+- monitor the restore key to perform reset or select the magicFlash64 slot for the magicFlash64 menu
 - monitor the reset pin and select the magicFlash64 slot for the magicFlash64 menu if reset is hold for more than 2s (the power LED will go off for the 1st 2s and blink)
 - execute commands from the C64 to select a slot, generate the write enable signal to the flash, access the micro controller eeprom, access the micro controller RAM, set the LED, ...
 - communicate to C64 in both directions
