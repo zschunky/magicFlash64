@@ -21,6 +21,7 @@
 .include "slot.inc"
 .include "backupSelect.inc"
 .include "selectSlot.inc"
+.include "tick.inc"
 
 
 .segment "LOADADDR"
@@ -69,40 +70,39 @@ __STARTUP__:
   jsr selectSlot
   jsr backupSelect
   jsr _initKeys
-:
-  jsr _evalKey
 
-  jmp :-
+  ; stop timer
+  lda #0
+  sta $dc0e
+  sta $dc0f
+  lda #<10000
+  sta $dc04
+  lda #>10000
+  sta $dc05
+
+  ; clr int and flags
+  lda #$7f
+  sta $dc0d
+
+  ; start timer
+  lda #$01
+  sta $dc0e
+
+:
+    lda $dc0d
+    and #1
+    beq :-
+
+    jsr _evalKey
+    jsr tick
+
+    lda #$9f
+    sta CIA2_ICR
+    sta CIA1_ICR
+
+    jmp :-
 error:
   inc $d020
   jmp error
-;  ; stop timer
-;  lda #0
-;  sta $dd0e
-;  sta $dd0f
-;  lda #<1000
-;  sta $dd04
-;  lda #>1000
-;  sta $dd05
-;  lda #<250
-;  sta $dd06
-;  lda #>250
-;  sta $dd07
-;
-;  ; clr int and flags
-;  lda #$7f
-;  sta $dd0d
-;
-;  ; start timers
-;  lda #$49
-;  sta $dd0f
-;  lda #$01
-;  sta $dd0e
-;:
-;  lda $dd0d
-;  and #2
-;  beq :-
-;
-;  jmp :--
 
   

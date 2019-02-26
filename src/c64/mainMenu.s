@@ -28,6 +28,7 @@
 .include "injectInt.inc"
 .include "pla.inc"
 .include "menuFrame.inc"
+.include "tick.inc"
 
 
 .import __DATA_LOAD__
@@ -139,10 +140,32 @@ dataInitDone:
    
 
   jsr selectSlotMenu
-:
-  jsr _evalKey
 
-  jmp :-
+  ; stop timer
+  lda #0
+  sta $dd0e
+  sta $dd0f
+  lda #<10000
+  sta $dd04
+  lda #>10000
+  sta $dd05
+
+  ; clr int and flags
+  lda #$7f
+  sta $dd0d
+
+  ; start timer
+  lda #$01
+  sta $dd0e
+:
+    lda $dd0d
+    and #1
+    beq :-
+
+    jsr _evalKey
+    jsr tick
+
+    jmp :-
 ;  ; stop timer
 ;  lda #0
 ;  sta $dd0e

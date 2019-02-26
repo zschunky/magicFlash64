@@ -21,6 +21,7 @@
 ;incBegin
 .include "key.inc"
 .include "assembler.inc"
+.include "tick.inc"
 
 ; screenItem, inverse, drawItem
 .macro select draw, drawSpace, selectedItem, numRows, numValues, keyJmpKey, keyJmpAddr, validCheck
@@ -112,13 +113,32 @@ drawAll:
   bne :-
   rts
 
-keyCrsr:
-  ldax #KEY2MASK(KEY_SHIFT_L)
-  jsr isKeyDown
-  beq keyCrsrUp
+keyCrsrRelease:
+  lda #0
+  sta tickPtr
+  sta tickPtr+1
 
-  ldax #KEY2MASK(KEY_SHIFT_R)
-  jsr isKeyDown
+tickCrsr:
+  dec tickCnt
+  beq :+
+    rts
+:
+  lda #10
+  sta tickCnt
+  jmp :+
+  
+
+keyCrsr:
+  lda #25
+  sta tickCnt
+
+  lda #<tickCrsr
+  sta tickPtr
+  lda #>tickCrsr
+  sta tickPtr+1
+
+:
+  jsr isShiftKeyDown
   beq keyCrsrUp
 
   ldx selectedItem
@@ -156,15 +176,24 @@ keyCrsrUp:
 :
   rts
 keyTableKey:
-  .byte KEY_CRSR_UD                ; crsr
+  .byte KEY_CRSR_UD, KEY_UP KEY_CRSR_UD               ; crsr
   .byte keyJmpKey
   .byte $ff
 keyTableLo:
-  .lobytes keyCrsr-1     ; crsr
+  .lobytes keyCrsr-1, keyCrsrRelease-1     ; crsr
   .lobytes keyJmpAddr
 keyTableHi:
-  .hibytes keyCrsr-1     ; crsr
+  .hibytes keyCrsr-1, keyCrsrRelease-1     ; crsr
   .hibytes keyJmpAddr
+
+
+.pushseg
+.bss
+tickCnt:
+  .res 1
+
+.popseg
+
 .endscope
 .endmacro
 

@@ -32,13 +32,17 @@ selectedBackupSelect:
   .byte 0
 
 .bss
+.export freeMemSlotPtr
 freeMemSlotPtr:
   .res 2
+.export newMemSlotPtr
 newMemSlotPtr:
   .res 2
+.export popMemSlotPtr
 popMemSlotPtr:
   .res 2
 .data
+.export initMemSlotPtr
 initMemSlotPtr:
   .res 2,0
 

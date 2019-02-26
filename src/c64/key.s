@@ -16,6 +16,8 @@
 ; 
 
 .include "c64.inc"
+.include "assembler.inc"
+.include "zeropage.inc"
 
 ;incBegin
 .define KEY_DEL 0
@@ -82,6 +84,11 @@
 .define KEY_CBM 61
 .define KEY_Q 62
 .define KEY_STOP 63
+
+.define KEY_ALL $80
+.define KEY_UP(key) key|$40
+.define KEY_END $ff
+
 
 .define KEY2MASK(key) 1<<(key & 7)|(1<<((key>>3)+8))^$ff00
 ;incEnd
@@ -158,6 +165,17 @@ isKeyDown:
    stx CIA1_PRA
    and CIA1_PRB
    rts
+
+.export isShiftKeyDown
+isShiftKeyDown:
+  ldax #KEY2MASK KEY_SHIFT_L 
+  jsr isKeyDown
+  beq :+
+
+  ldax #KEY2MASK KEY_SHIFT_R 
+  jmp isKeyDown
+:
+  rts
 
 .export _isKeyDown
 _isKeyDown:
@@ -284,12 +302,18 @@ evalKeyBit:
 
 .export _keyUp
 _keyUp:
-   ora #$40
+   ora #KEY_UP 0
+   lda #KEY_UP KEY_ALL
+   sta tmp1
+   bne :+
 .export _keyDown
 _keyDown:
 ;   lda #$2a
 ;   sta $0400,y
 ;   rts
+   lda #KEY_ALL
+   sta tmp1
+:
    sta key
    tax
    ldy #0
@@ -297,8 +321,10 @@ _keyDown:
    lda (keyJmpTableKey),y
    cmp key
    beq :+
+   cmp tmp1
+   beq :+
    iny
-   cmp #$ff
+   cmp #KEY_END
    bne :-
    rts
 :

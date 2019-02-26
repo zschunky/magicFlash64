@@ -442,11 +442,11 @@ keyNum1:
 
 drive:
   sta tmp2
-  sty tmp1
+  stx tmp1
   ldax #KEY2MASK(KEY_CBM)
   jsr isKeyDown
   beq :+
-    ldy tmp1
+    ldx tmp1
     jmp keyNum
 :
   lda tmp2

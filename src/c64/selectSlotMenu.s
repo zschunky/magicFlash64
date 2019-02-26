@@ -479,12 +479,7 @@ slotCheck:
 .export keyLR
 keyLR:
   
-  ldax #KEY2MASK(KEY_SHIFT_L)
-  jsr isKeyDown
-  beq keyL
-
-  ldax #KEY2MASK(KEY_SHIFT_R)
-  jsr isKeyDown
+  jsr isShiftKeyDown
   beq keyL
 
   ldx selectedTab

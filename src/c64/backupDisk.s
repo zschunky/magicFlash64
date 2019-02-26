@@ -41,21 +41,17 @@ backupDiskDrive:
   
 
 
+.define NUM_SLOTS 4
 
 .code
 bufferAddrLo:
-  .lobytes (__TMP_RAM_START__+$0000)
-  .lobytes (__TMP_RAM_START__+$2000)
-  .lobytes (__TMP_RAM_START__+$4000)
-  .lobytes (__TMP_RAM_START__+$6000)
-  .lobytes (__TMP_RAM_START__+$8000)
+.repeat NUM_SLOTS,i
+  .lobytes (__TMP_RAM_START__+(i*$2000))
+.endrepeat
 bufferAddrHi:
-  .hibytes (__TMP_RAM_START__+$0000)
-  .hibytes (__TMP_RAM_START__+$2000)
-  .hibytes (__TMP_RAM_START__+$4000)
-  .hibytes (__TMP_RAM_START__+$6000)
-  .hibytes (__TMP_RAM_START__+$8000)
-
+.repeat NUM_SLOTS,i
+  .hibytes (__TMP_RAM_START__+(i*$2000))
+.endrepeat
 
 
 
@@ -83,7 +79,7 @@ setBufferSrcPtr:
 .export freeMemSlotDisk
 freeMemSlotDisk:
   txa
-  ldy #4
+  ldy #NUM_SLOTS-1
 :
     cmp bufferSlot,y
     beq :+
@@ -108,7 +104,7 @@ popMemSlotDisk:
       jmp popMemSlotFound
 :
     inx
-    cpx #5
+    cpx #NUM_SLOTS
     bne :--
 
   ;check action
@@ -125,10 +121,10 @@ popMemSlotDisk:
 
 .export popMemSlotFound
 popMemSlotFound:
-    cpx #4
+    cpx #NUM_SLOTS-1
     bne :+
       ldy #0
-      ldx #4
+      ldx #NUM_SLOTS-1
       jsr setBufferSrcSlotPtr
       jsr plaKernalOffIoOff
       jsr swapSlot
@@ -136,7 +132,7 @@ popMemSlotFound:
 
 
       lda bufferSlot
-      sta bufferSlot+4
+      sta bufferSlot+NUM_SLOTS-1
       lda slot
       sta bufferSlot
       
@@ -153,7 +149,7 @@ popMemSlotFile:
 
 .export initMemSlotDisk
 initMemSlotDisk:
-  ldx #4
+  ldx #NUM_SLOTS-1
   lda #$ff
 :
   sta bufferSlot,x
@@ -179,7 +175,7 @@ newMemSlotDisk:
     jmp newMemSlotFound
 :
   inx
-  cpx #5
+  cpx #NUM_SLOTS
   bne :--
 
   ; search for free mem
@@ -189,7 +185,7 @@ newMemSlotDisk:
   cmp bufferSlot,x
   beq newMemSlotFound
   inx
-  cpx #5
+  cpx #NUM_SLOTS
   bne :-
 
   ; search for non reflash slot (not backup)
@@ -201,7 +197,7 @@ newMemSlotDisk:
   beq newMemSlotFound
 
   inx
-  cpx #5
+  cpx #NUM_SLOTS
   bne :-
 
 
@@ -240,16 +236,16 @@ newMemSlotSaveDone:
 
       ldx #0
 newMemSlotFound:
-      cpx #4
+      cpx #NUM_SLOTS-1
       bne :+
 
         lda bufferSlot
-        sta bufferSlot+4
+        sta bufferSlot+NUM_SLOTS-1
 
         jsr plaKernalOffIoOff
 
         ldy #0
-        ldx #4
+        ldx #NUM_SLOTS-1
         jsr setBufferSrcSlotPtr
 
         jsr copySlot

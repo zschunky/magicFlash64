@@ -29,10 +29,10 @@ VER_PCB_MAJOR=0
 VER_PCB_MINOR=2
 
 VER_MENU_MAJOR=0
-VER_MENU_MINOR=3
+VER_MENU_MINOR=4
 
 VER_PROGRAMMER_MAJOR=0
-VER_PROGRAMMER_MINOR=3
+VER_PROGRAMMER_MINOR=4
 
 VER_FW_MAJOR=0
 VER_FW_MINOR=4
@@ -106,13 +106,13 @@ VPATH+=. $(C64_BUILD_DIR) src/c64
 ASM_INC=$(wildcard *.inc)
 
 SRC_MENU=magicFlash64Lib.s mainMenu.s key.s screenCpy.s select.s zeropage.s selectSlotMenu.s kernalImpl.s num.s screenNum.s textMenuEn.s injectInt.s pla.s \
-				 qrcode.s menuFrame.s
+				 qrcode.s menuFrame.s tick.s
 OBJECTS_MENU=$(patsubst %.s,$(C64_BUILD_DIR)/%.o,$(patsubst %.c,$(C64_BUILD_DIR)/%.o,$(SRC_MENU)))
 TARGET_MENU=mf64-menu.bin
 
 SRC_PROGRAMMER=magicFlash64Lib.s magicFlash64LibPgm.s mainProgrammer.s key.s screenCpy.s select.s selectSlot.s selectFile.s slot.s petscii2screen.s zeropage.s pla.s \
 				backupDisk.s crc.s num.s screenNum.s status.s textProgrammerEn.s patchTable.s backup.s backupReu.s c64Kernal.s backupGeoRam.s backupSelect.s breakPoint.s \
-				qrcode.s
+				qrcode.s tick.s
 
 OBJECTS_PROGRAMMER=$(patsubst %.s,$(C64_BUILD_DIR)/%.o,$(patsubst %.c,$(C64_BUILD_DIR)/%.o,$(SRC_PROGRAMMER)))
 TARGET_PROGRAMMER=mf64-programmer.prg
