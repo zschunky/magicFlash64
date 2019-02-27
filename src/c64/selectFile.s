@@ -360,13 +360,19 @@ keyFileReturn:
   lda len
   sta fnLenSlot,x
 
+  ldax #keyFileReturnLoad
+  jmp renameSlot
+
+.export keyFileReturnLoad
+keyFileReturnLoad:
+  jsr selectSlot
+
   ; load file
+  ldx selectedSlot
   jsr loadSlot
 
   jsr selectSlot
-
   jmp selectType
-
 
   
 

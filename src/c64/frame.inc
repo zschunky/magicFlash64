@@ -52,7 +52,8 @@
 .endmacro
 
 .define frameTitleOffset(t) .strlen(t)+11
-.define frameTitleBodyOffset(w,h) $0400 + ((25-(h))/2) * 40 + ((40-(w))/2)
+.define frameTitleScreenAddr(w,h) $0400 + ((25-(h))/2) * 40 + ((40-(w))/2)
+.define frameTitleScreenBodyAddr(w,h) $0400 + ((25-(h))/2) * 40 + ((40-(w))/2) + 3*40+1
 .macro frameTitle t,w,h
   frameAddrAbs w,h
   .byte $f0 + COLOR_BORDER,112,$80+(w-2),64,110

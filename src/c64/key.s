@@ -71,7 +71,7 @@
 .define KEY_POUND 48
 .define KEY_ASTERIX 49
 .define KEY_SEMICOLON 50
-.define KEY_CLR 51
+.define KEY_HOME 51
 .define KEY_SHIFT_R 52
 .define KEY_EQUAL 53
 .define KEY_PTR_U 54
@@ -303,16 +303,16 @@ evalKeyBit:
 .export _keyUp
 _keyUp:
    ora #KEY_UP 0
-   lda #KEY_UP KEY_ALL
-   sta tmp1
+   ldy #KEY_UP KEY_ALL
+   sty tmp1
    bne :+
 .export _keyDown
 _keyDown:
 ;   lda #$2a
 ;   sta $0400,y
 ;   rts
-   lda #KEY_ALL
-   sta tmp1
+   ldy #KEY_ALL
+   sty tmp1
 :
    sta key
    tax

@@ -112,7 +112,7 @@ TARGET_MENU=mf64-menu.bin
 
 SRC_PROGRAMMER=magicFlash64Lib.s magicFlash64LibPgm.s mainProgrammer.s key.s screenCpy.s select.s selectSlot.s selectFile.s slot.s petscii2screen.s zeropage.s pla.s \
 				backupDisk.s crc.s num.s screenNum.s status.s textProgrammerEn.s patchTable.s backup.s backupReu.s c64Kernal.s backupGeoRam.s backupSelect.s breakPoint.s \
-				qrcode.s tick.s
+				qrcode.s tick.s input.s
 
 OBJECTS_PROGRAMMER=$(patsubst %.s,$(C64_BUILD_DIR)/%.o,$(patsubst %.c,$(C64_BUILD_DIR)/%.o,$(SRC_PROGRAMMER)))
 TARGET_PROGRAMMER=mf64-programmer.prg

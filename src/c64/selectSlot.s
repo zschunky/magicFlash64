@@ -31,6 +31,7 @@
 .include "selectFile.inc"
 .include "screenCpy.inc"
 .include "qrcode.inc"
+.include "input.inc"
 .macpack cbm
 
 .define SELECT_LEN 38
@@ -47,7 +48,7 @@ selectSlot:
   lda #<slotScreen
   ldx #>slotScreen
   jsr _screenCpy
-  select drawSlot, drawSlotSpace, selectedSlot, 20, #64, {KEY_E,KEY_P,KEY_F7,KEY_V,KEY_B,KEY_0,KEY_1,KEY_2,KEY_3,KEY_4,KEY_5,KEY_6,KEY_7,KEY_8,KEY_9,KEY_U,KEY_D,KEY_T,KEY_F1}, {keyE-1,keyP-1,keyF7-1,keyV-1,keyB-1,keyNum0-1,keyNum1-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyNum8-1,keyNum9-1,keyU-1,keyD-1,selectType-1,keyF1-1}
+  select drawSlot, drawSlotSpace, selectedSlot, 20, #64, {KEY_E,KEY_P,KEY_F7,KEY_V,KEY_B,KEY_0,KEY_1,KEY_2,KEY_3,KEY_4,KEY_5,KEY_6,KEY_7,KEY_8,KEY_9,KEY_U,KEY_D,KEY_T,KEY_F1,KEY_R}, {keyE-1,keyP-1,keyF7-1,keyV-1,keyB-1,keyNum0-1,keyNum1-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyNum-1,keyNum8-1,keyNum9-1,keyU-1,keyD-1,selectType-1,keyF1-1,keyR-1}
 
 ;slotCheck:
 ;  jsr setSlotPtr
@@ -244,6 +245,45 @@ drawColor:
 
   rts
 
+
+.export keyR
+keyR:
+  ldax #renameDone
+
+.export renameSlot
+renameSlot:
+  stax inputDonePtr
+
+  ldx selectedSlot
+  lda slotDigit0,x
+  sta renameFrameSlot
+  lda slotDigit1,x
+  sta renameFrameSlot+1
+
+  lda #<renameFrame
+  ldx #>renameFrame
+  jsr _screenCpy
+
+  lda #<renameFrameBody
+  sta screenPtr
+  lda #>renameFrameBody
+  sta screenPtr+1
+
+  ldx selectedSlot
+  jsr setSrcPtrName
+
+  lda #16
+  sta len
+
+  jmp input
+
+renameDone:
+  beq :+
+    ldx #BOOT_SLOT
+    jsr markEraseBlock
+:
+  jmp selectSlot
+
 .export keyD
 keyD:
   lda selectedSlot
@@ -296,6 +336,11 @@ keyV:
 .export selectType
 selectType:
   ldx selectedSlot
+  lda slotDigit0,x
+  sta typeFrameSlot
+  lda slotDigit1,x
+  sta typeFrameSlot+1
+
   lda slotDescrType,x
   cmp #$40
   bcs :+

@@ -27,11 +27,24 @@
 .code
 
 ;incBegin
-.define TYPE_WIDTH 11
+.define TYPE_WIDTH 23
 ;incEnd
 .export typeFrame
 typeFrame:
-  frameTitle "SELECT TYPE", TYPE_WIDTH+2, 11
+  frameTitle "SELECT TYPE FOR SLOT XX", TYPE_WIDTH+2, 11
+.export typeFrameSlot
+typeFrameSlot=typeFrame+frameTitleOffset "SELECT TYPE FOR SLOT "
+
+.export typeScreenLo
+typeScreenLo:
+  .repeat 7,i
+    frameAddrTitleLo TYPE_WIDTH+2, 11,i * 40
+  .endrepeat
+.export typeScreenHi
+typeScreenHi:
+  .repeat 7,i
+    frameAddrTitleHi TYPE_WIDTH+2, 11,i * 40
+  .endrepeat
 
 .export typesName
 typesName:
@@ -85,6 +98,8 @@ slotScreenProgVer:
      .byte $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $20, $f0 + COLOR_HELP 
      scrcode "F1"
      .byte $f0 + COLOR_BORDER, 93
+.export slotScreenFwLine
+slotScreenFwLine:
   .byte 93,$f0 + COLOR_FW
      scrcode "magicFlash64 firmware v" ; len 22
 .export slotScreenFwVer
@@ -122,16 +137,6 @@ backupSelectNames:
   .byte 0
 
 
-.export typeScreenLo
-typeScreenLo:
-  .repeat 7,i
-    frameAddrTitleLo 13, 11,i * 40
-  .endrepeat
-.export typeScreenHi
-typeScreenHi:
-  .repeat 7,i
-    frameAddrTitleHi 13, 11,i * 40
-  .endrepeat
 .export backupSelectScreenLo
 backupSelectScreenLo:
   .repeat 11,i
@@ -260,3 +265,12 @@ help4:
   screenLine "                                    "
   screenLine "     <SPACE> to close this help     ",$80
 
+.data
+
+.export renameFrame
+renameFrame:
+  frameTitle "ENTER NAME FOR SLOT XX", 24, 5
+.export renameFrameBody
+renameFrameBody=frameTitleScreenBodyAddr 24,5
+.export renameFrameSlot
+renameFrameSlot=renameFrame+frameTitleOffset "ENTER NAME FOR SLOT "

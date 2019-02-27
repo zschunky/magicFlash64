@@ -257,6 +257,13 @@ eraseSlot:
     
 :
   rts
+.export setSrcPtrName
+setSrcPtrName:
+  lda slotDescrNameAddrLo,x
+  sta srcPtr
+  lda slotDescrNameAddrHi,x
+  sta srcPtr+1
+  rts
 .export setSrcSlotPtrName
 setSrcSlotPtrName:
   lda slotDescrNameAddrLo,y
