@@ -83,6 +83,7 @@ skip:
 screenNum0:
   bcs :+
     lda #48
+    ldy #0
     sta (screenPtr),y
 
     inc screenPtr
