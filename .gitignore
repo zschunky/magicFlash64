@@ -4,4 +4,7 @@ build/
 *.zip
 *.bak
 *.sw*
+*-bak
 _autosave-*
+log.txt
+
