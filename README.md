@@ -18,26 +18,26 @@ The current version of the hardware is 0.2.
 ### part list
 |ID|name|housing|amount|description|vendor|
 |--|----------|-------|---------|-----------|-----------------|
-|1|U3|PLCC32|1|AM29F040|||
-|2|C1|C_Disc_D3.4mm_W2.1mm_P2.50mm|1|100n|||
-|3|C2,C3|C_Disc_D3.4mm_W2.1mm_P2.50mm|2|22p|||
-|4|Y1|Crystal_HC18-U_Vertical|1|20MHz|||
-|5|J2|Pin_Header_Angled_1x07_Pitch2.54mm|1|1x7|||
-|6|JP1,JP2,JP3,JP5|Pin_Header_Straight_1x03_Pitch2.54mm|4|1x3|||
-|7|R1,R2|R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical|2|1k|||
-|8|R3,R4|R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical|2|10k|||
-|9|R5,R6,R7,R8|R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical|4|10K|||
-|10|D1,D2,D3,D4,D5,D6|D_DO-35_SOD27_P2.54mm_Vertical_AnodeUp|6|D|||
-|11|JP4|Pin_Header_Straight_1x02_Pitch2.54mm|1|1x2|||
-|12|U1|precision socket header|2|1x14|||
-|13|U2|DIP-28_W7.62mm|1|ATMEGA48-20PU|||
-|14|J4,J1|Pin_Header_Angeled_1x04_Pitch2.54mm|2|1x4|||
-|15|R10,R11|R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical|2|4.7K|||
-|16|C4|C_Disc_D3.4mm_W2.1mm_P2.50mm|1|220pF/1.2n|||
-|17|C5|C_Disc_D3.4mm_W2.1mm_P2.50mm|1|220p|||
-|18|R9,R12|R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical|2|100|||
-|19|R13|R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical|1|270|||
-|20|J3|Pin_Header_Angled_1x03_Pitch2.54mm|1|1x3|||
+|1|U3|PLCC32|1|AM29F040||
+|2|C1|C_Disc_D3.4mm_W2.1mm_P2.50mm|1|100n||
+|3|C2,C3|C_Disc_D3.4mm_W2.1mm_P2.50mm|2|22p||
+|4|Y1|Crystal_HC18-U_Vertical|1|20MHz||
+|5|J2|Pin_Header_Angled_1x07_Pitch2.54mm|1|1x7||
+|6|JP1,JP2,JP3,JP5|Pin_Header_Straight_1x03_Pitch2.54mm|4|1x3||
+|7|R1,R2|R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical|2|1k||
+|8|R3,R4|R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical|2|10k||
+|9|R5,R6,R7,R8|R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical|4|10K||
+|10|D1,D2,D3,D4,D5,D6|D_DO-35_SOD27_P2.54mm_Vertical_AnodeUp|6|D||
+|11|JP4|Pin_Header_Straight_1x02_Pitch2.54mm|1|1x2||
+|12|U1|precision socket header|2|1x14||
+|13|U2|DIP-28_W7.62mm|1|ATMEGA48-20PU||
+|14|J4,J1|Pin_Header_Angeled_1x04_Pitch2.54mm|2|1x4||
+|15|R10,R11|R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical|2|4.7K||
+|16|C4|C_Disc_D3.4mm_W2.1mm_P2.50mm|1|220pF/1.2n||
+|17|C5|C_Disc_D3.4mm_W2.1mm_P2.50mm|1|220p||
+|18|R9,R12|R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical|2|100||
+|19|R13|R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical|1|270||
+|20|J3|Pin_Header_Angled_1x03_Pitch2.54mm|1|1x3||
 
 
 ### soldering the pcb
@@ -83,6 +83,16 @@ Following jumper settings are required to be used as 28 pin kernal replacement:
 
 ### partly populated magicFlash64
 The partly populated magicFlash64 needs to be controlled from the outside via the J1 pin header. The flash content can only be modified by manual removing the flash IC and programming it with an external programmer. With this partly populated magicFlash64 the magicFlash64 may also be used in other platforms like floppy drives etc.
+### header pins
+The magicFlash64 offers a bunch of header pins which need to/can be connected to other signals. Some of them are mandatory and some are optional.
+
+|connector|description|
+|---------|--------------------------------------|
+|J1|this header is used to connect the mandatory pins reset (pin1), restore (pin2), RW (pin3) to the C64 mainboard, gpio (pin4) was planned for future use but will be removed in future pcbs|
+|J2|J2 is optional and can be used in 2 ways: in partly populated mode (no microcontroller attached) the slot will be selcted via this header, in full populated mode the header can be used to identify the current slot in use (eg overlay64)|
+|J3|J3 is optional but highly recommended, J3 is used to connect the power LED of the C64 case|
+|J4|J4 is not used yet and for future use, the idea behind is to provide an I2C bus to be able to connected a OLED LCD|
+
 ## preparing a C64 mainboard
 In order to install a magicFlash64 on a  C64 mainboard several preparation need to be done. If the kernal ROM IC is soldered in it needs to be removed and a socket needs to be installed instead. In addition the magicFlash64 required 3 additional signals:
 - restore key (available on keyboard connector pin 3)
