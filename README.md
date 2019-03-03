@@ -52,7 +52,7 @@ These 2 parts are the most critical parts to solder. The rest of the parts can s
 Please pay attention for the capacitor C4 selection of PCB v0.2 (see chapter known issues/capacitor C4).
 ### known issues
 #### capacitor C4 (PCB v0.2 only)
-The capacitor C4 needs to be selected depending on the target mainboard. For 250459 mainboards use 220pF and for all others use 1.2nF. There is also the possibility to solder a precision socket instead and plug in the correct capacitor.
+The capacitor C4 needs to be selected depending on the target mainboard. For 250469 mainboards use 220pF and for all others use 1.2nF. There is also the possibility to solder a precision socket instead and plug in the correct capacitor.
 #### labels for J1, J2, J3 and J4
 When placing angeled headers the labels for J1, J2, J3 and J4 are no longer visible.
 #### keyboard mounts on 250469 boards
