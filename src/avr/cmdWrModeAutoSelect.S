@@ -20,8 +20,11 @@
 .text
   ; WR MODE AUTO SELECT -> Flash auto select mode
 cmdWrModeAutoSelect:
+  sbrc rSel13Old,0
+  rjmp cmdWrModeAutoSelectOld
+
   
-  sbi SEL13_DDR,SEL13_P
+  sbi SEL13NEW_DDR,SEL13NEW_P
   cbi SEL14_DDR,SEL14_P
   waitWr
 
@@ -29,7 +32,7 @@ cmdWrModeAutoSelect:
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
 
-  cbi SEL13_DDR,SEL13_P
+  cbi SEL13NEW_DDR,SEL13NEW_P
   sbi SEL14_DDR,SEL14_P
   waitWr
 
@@ -37,7 +40,7 @@ cmdWrModeAutoSelect:
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
 
-  sbi SEL13_DDR,SEL13_P
+  sbi SEL13NEW_DDR,SEL13NEW_P
   cbi SEL14_DDR,SEL14_P
   waitWr
 
@@ -45,7 +48,46 @@ cmdWrModeAutoSelect:
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
 
-  sbi SEL13_DDR,SEL13_P
+  sbi SEL13NEW_DDR,SEL13NEW_P
+  out SEL14_DDR,rSel1418Mask
+  waitOe
+
+  waitWr
+
+  ; toggle we
+  cbi WE_PORT,WE_P
+  sbi WE_PORT,WE_P
+
+  rcall setSelect
+
+  rjmp mainLoop
+
+cmdWrModeAutoSelectOld:
+  sbi SEL13OLD_DDR,SEL13OLD_P
+  cbi SEL14_DDR,SEL14_P
+  waitWr
+
+  ; toggle we
+  cbi WE_PORT,WE_P
+  sbi WE_PORT,WE_P
+
+  cbi SEL13OLD_DDR,SEL13OLD_P
+  sbi SEL14_DDR,SEL14_P
+  waitWr
+
+  ; toggle we
+  cbi WE_PORT,WE_P
+  sbi WE_PORT,WE_P
+
+  sbi SEL13OLD_DDR,SEL13OLD_P
+  cbi SEL14_DDR,SEL14_P
+  waitWr
+
+  ; toggle we
+  cbi WE_PORT,WE_P
+  sbi WE_PORT,WE_P
+
+  sbi SEL13OLD_DDR,SEL13OLD_P
   out SEL14_DDR,rSel1418Mask
   waitOe
 

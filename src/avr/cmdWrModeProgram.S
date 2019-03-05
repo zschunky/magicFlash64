@@ -19,7 +19,10 @@
 
 .text
 cmdWrModeProgram:
-  sbi SEL13_DDR,SEL13_P
+  sbrc rSel13Old,0
+  rjmp cmdWrModeProgramOld
+
+  sbi SEL13NEW_DDR,SEL13NEW_P
   cbi SEL14_DDR,SEL14_P
   waitWr
 
@@ -27,7 +30,7 @@ cmdWrModeProgram:
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
 
-  cbi SEL13_DDR,SEL13_P
+  cbi SEL13NEW_DDR,SEL13NEW_P
   sbi SEL14_DDR,SEL14_P
   waitWr
 
@@ -35,7 +38,41 @@ cmdWrModeProgram:
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
 
-  sbi SEL13_DDR,SEL13_P
+  sbi SEL13NEW_DDR,SEL13NEW_P
+  cbi SEL14_DDR,SEL14_P
+  waitWr
+
+  ; toggle we
+  cbi WE_PORT,WE_P
+  sbi WE_PORT,WE_P
+
+  rcall setSelect
+  waitWr
+
+  ; toggle we
+  cbi WE_PORT,WE_P
+  sbi WE_PORT,WE_P
+
+  rjmp mainLoop
+
+cmdWrModeProgramOld:
+  sbi SEL13OLD_DDR,SEL13OLD_P
+  cbi SEL14_DDR,SEL14_P
+  waitWr
+
+  ; toggle we
+  cbi WE_PORT,WE_P
+  sbi WE_PORT,WE_P
+
+  cbi SEL13OLD_DDR,SEL13OLD_P
+  sbi SEL14_DDR,SEL14_P
+  waitWr
+
+  ; toggle we
+  cbi WE_PORT,WE_P
+  sbi WE_PORT,WE_P
+
+  sbi SEL13OLD_DDR,SEL13OLD_P
   cbi SEL14_DDR,SEL14_P
   waitWr
 

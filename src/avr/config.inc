@@ -42,8 +42,10 @@
 #define RESET_INTMSK PCMSK0
 #define RESET_IE PCIE0
 #define RESET_VECT PCINT0_vect
-#define SEL13_DDR DDRC
-#define SEL13_P PC6
+#define SEL13OLD_DDR DDRC
+#define SEL13OLD_P PC6
+#define SEL13NEW_DDR DDRB
+#define SEL13NEW_P PB5
 #define SEL14_DDR DDRD
 #define SEL14_P PD3
 #define SEL15_DDR DDRD
@@ -86,6 +88,7 @@
 #define rTmp5 r25
 #define rPrev r15
 #define rRestoreSelect r14
+#define rSel13Old r13
 
 #define zl r30
 #define zh r31
