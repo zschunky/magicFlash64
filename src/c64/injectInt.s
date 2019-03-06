@@ -22,6 +22,9 @@
 .include "selectSlotMenu.inc"
 .include "c64.inc"
 
+
+.define targetPtr $2d
+
 .code
 
 .import __INJECT_RAM_SIZE__
@@ -38,7 +41,7 @@ injectInt:
   cpx #<__INJECT_RAM_SIZE__
   bne :-
  
-  push injectKernal, srcPtr, srcPtr+1, slotPtr, slotPtr+1, size, size+1, slot,slotTmp
+  push injectKernal, srcPtr, srcPtr+1, size, size+1, slot,slotTmp
 
   lda injectSlot
   sta slotTmp
@@ -54,10 +57,10 @@ injectInt:
   dec16 size
 
   ; check for start address $0801
-  lda slotPtr
+  lda targetPtr
   cmp #$01
   bne :++
-  lda slotPtr+1
+  lda targetPtr+1
   cmp #$08
   bne :++
     ; write run\n into keyboard buffer
@@ -97,7 +100,7 @@ injectSlotLoop:
 
 
 
-  pop slotTmp, slot, size+1, size, slotPtr+1, slotPtr, srcPtr+1, srcPtr
+  pop slotTmp, slot, size+1, size, srcPtr+1, srcPtr
   pla
   jmp exitInjectInt
 
@@ -153,10 +156,10 @@ setSlot:
   
   ldy #0
   lda (srcPtr),y
-  sta slotPtr
+  sta targetPtr
   iny
   lda (srcPtr),y
-  sta slotPtr+1
+  sta targetPtr+1
 
   jsr noBadInject
   SEQ CMD_SELECT_PREV
@@ -171,10 +174,10 @@ injectCopy:
   ldy #0
 injectCopyLoop:
     lda (srcPtr),y
-    sta (slotPtr),y
+    sta (targetPtr),y
 
     inc16 srcPtr
-    inc16 slotPtr
+    inc16 targetPtr
     dec16Branch size,injectCopyLoop
 
   jsr noBadInject
