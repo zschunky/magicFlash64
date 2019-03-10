@@ -52,7 +52,7 @@ setLedCont:
     lsl rTmp
     add zl,rTmp
 
-    ld rTmp,z+
+    ld rTmp6,z+
     ld rTmp2,z
 
     ; assemble TCCR1A
@@ -67,7 +67,7 @@ setLedCont:
 
     ori rTmp,3<<WGM12
     sts OCR1AH,rTmp2
-    sts OCR1AL,rTmp
+    sts OCR1AL,rTmp6
     sts TCCR1A,rTmp3
     sts TCCR1B,rTmp
     sts ICR1H,rTmp4
