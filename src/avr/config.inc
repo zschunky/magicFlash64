@@ -75,6 +75,13 @@
 #define NMI_P    RESTORE_P
 #define NMI_DDR  RESTORE_DDR
 
+#define SCL_DDR DDRD
+#define SCL_PIN PIND
+#define SCL_P PD0
+#define SDA_DDR DDRD
+#define SDA_PIN PIND
+#define SDA_P PD1
+
 #define rTmp r16
 #define rCmd xl
 #define rLookup r17
@@ -89,6 +96,7 @@
 #define rPrev r15
 #define rRestoreSelect r14
 #define rSel13Old r13
+#define rTmp6 r12
 
 #define zl r30
 #define zh r31
@@ -168,3 +176,9 @@
 .global sendByte
 .global mainBegin
 .global reset
+.global cmdGetMode
+.global cmdGetRecoveryVersion
+.global getRecoveryVersion
+.global cmdRecoveryUpdate
+.global recovery
+.global boot

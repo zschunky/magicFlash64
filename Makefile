@@ -34,13 +34,19 @@ VER_MENU_MINOR=5
 VER_PROGRAMMER_MAJOR=0
 VER_PROGRAMMER_MINOR=4
 
-VER_FW_MAJOR=0
-VER_FW_MINOR=5
+VER_FW_MAJOR=1
+VER_FW_MINOR=0
 
 VER_TEST_MAJOR=0
 VER_TEST_MINOR=1
 
-VERSION=-D VER_MENU_MAJOR=$(VER_MENU_MAJOR) -D VER_MENU_MINOR=$(VER_MENU_MINOR) -D VER_PROGRAMMER_MAJOR=$(VER_PROGRAMMER_MAJOR) -D VER_PROGRAMMER_MINOR=$(VER_PROGRAMMER_MINOR) -D VER_FW_MAJOR=$(VER_FW_MAJOR) -D VER_FW_MINOR=$(VER_FW_MINOR) -D VER_TEST_MAJOR=$(VER_TEST_MAJOR) -D VER_TEST_MINOR=$(VER_TEST_MINOR)
+VER_RECOVERY=1
+
+FW_ADDR=0x280
+RECOVERY_ADDR=0x80
+RECOVERY_IMPL_ADDR=0xa0
+
+DEFINES=-D VER_MENU_MAJOR=$(VER_MENU_MAJOR) -D VER_MENU_MINOR=$(VER_MENU_MINOR) -D VER_PROGRAMMER_MAJOR=$(VER_PROGRAMMER_MAJOR) -D VER_PROGRAMMER_MINOR=$(VER_PROGRAMMER_MINOR) -D VER_FW_MAJOR=$(VER_FW_MAJOR) -D VER_FW_MINOR=$(VER_FW_MINOR) -D VER_TEST_MAJOR=$(VER_TEST_MAJOR) -D VER_TEST_MINOR=$(VER_TEST_MINOR) -D VER_RECOVERY=$(VER_RECOVERY) -D FW_ADDR=$(FW_ADDR) -D RECOVERY_ADDR=$(RECOVERY_ADDR)
 
 ## AVR build part ##
 
@@ -48,18 +54,18 @@ AVR_BUILD_DIR=$(BUILD_DIR)/avr
 
 AVR=atmega48
 AVR_TARGET=mf64-firmware.bin
-AVR_CFLAGS+=-Wl,--section-start=.fwupd=0x0f00,-Map,$(AVR_BUILD_DIR)/avr.map $(VERSION)
+AVR_CFLAGS+=-Wl,-Ttext=$(FW_ADDR),--section-start=.boot=0x0000,--section-start=.recoveryLookup=$(RECOVERY_ADDR),--section-start=.recovery=$(RECOVERY_IMPL_ADDR),-Map,$(AVR_BUILD_DIR)/avr.map,--cref $(DEFINES)
 
 
 AVR_SRC=main.S cmdFwUpd.S cmdGetEeprom.S cmdGetRam.S cmdGetVersion.S cmdMcType.S cmdReset.S cmdSelect.S cmdSetEeprom.S cmdTest.S cmdWrModeErase.S cmdWrModeReset.S ram.S \
     cmdGetDefault.S cmdGetPrev.S cmdGetSelected.S cmdLed.S cmdSelectAfterInt.S cmdSelectPrev.S cmdSetDefault.S cmdSetRam.S cmdWrModeAutoSelect.S cmdWrModeProgram.S \
-		eeprom.S led.S reset.S restore.S sendByte.S setSelect.S cmdSelectAfterRestoreInt.S
+		eeprom.S led.S reset.S restore.S sendByte.S setSelect.S cmdSelectAfterRestoreInt.S boot.S cmdGetMode.S cmdGetRecoveryVersion.S cmdRecoveryUpd.S recovery.S
 
 AVR_CC=avr-gcc 
 AVR_OBJDUMP=avr-objdump
 AVR_SIZE=avr-size
 AVR_OBJ2HEX=avr-objcopy
-AVR_CFLAGS+=-g -Wall -mmcu=$(AVR) -std=gnu99 -O2 -fdata-sections -ffunction-sections -Wl,--gc-sections #-fdiagnostics-color=always
+AVR_CFLAGS+=-g -Wall -mmcu=$(AVR) -std=gnu99 -O2 -fdata-sections -ffunction-sections #-Wl,--gc-sections #-fdiagnostics-color=always
 
 VPATH+=$(AVR_BUILD_DIR) src/avr
 
@@ -74,7 +80,7 @@ DEFAULT_D64=src/c64/default.d64
 avr: $(BUILD_DIR)/$(AVR_TARGET)
 
 
-$(AVR_BUILD_DIR)/%.o: %.S Makefile
+$(AVR_BUILD_DIR)/%.o: %.S Makefile config.inc
 	@mkdir -p $(AVR_BUILD_DIR)
 	$(AVR_CC) -I$(AVR_BUILD_DIR) $(AVR_CFLAGS) -c -MMD $< -o $@
 
@@ -84,13 +90,13 @@ $(AVR_BUILD_DIR)/$(patsubst %.bin,%.elf,$(AVR_TARGET)): $(AVR_OBJECTS)
 	$(AVR_SIZE) -C --mcu=$(AVR) $@
 
 $(BUILD_DIR)/%.bin: $(AVR_BUILD_DIR)/%.elf
-	$(AVR_OBJ2HEX) -R .eeprom -O binary $< $@
+	$(AVR_OBJ2HEX) -R .eeprom -O binary --gap-fill 0xff $< $@
 
 ## C64 build part ##
 
 C64_CC=cl65 -t c64
 C64_LD=ld65
-C64_CFLAGS=-Oir --asm-include-dir $(C64_BUILD_DIR) --bin-include-dir $(BUILD_DIR) $(patsubst -D%,--asm-define%,$(VERSION))
+C64_CFLAGS=-Oir --asm-include-dir $(C64_BUILD_DIR) --bin-include-dir $(BUILD_DIR) $(patsubst -D%,--asm-define%,$(DEFINES))
 C64_LDFLAGS_MENU=-Oir  -C src/c64/kernal.cfg
 C64_LDFLAGS_PRG=-C src/c64/prgAsm.cfg
 C64_DA=da65 -S '$$e000' --comments 4
@@ -121,6 +127,10 @@ SRC_UPD=magicFlash64Lib.s magicFlash64LibPgm.s mainUpd.s zeropage.s breakPoint.s
 OBJECTS_UPD=$(patsubst %.s,$(C64_BUILD_DIR)/%.o,$(patsubst %.c,$(C64_BUILD_DIR)/%.o,$(SRC_UPD)))
 TARGET_UPD=mf64-fw-update.prg
 
+SRC_RECOVERY_UPD=magicFlash64Lib.s magicFlash64LibPgm.s mainRecoveryUpd.s zeropage.s breakPoint.s key.s
+OBJECTS_RECOVERY_UPD=$(patsubst %.s,$(C64_BUILD_DIR)/%.o,$(patsubst %.c,$(C64_BUILD_DIR)/%.o,$(SRC_RECOVERY_UPD)))
+TARGET_RECOVERY_UPD=mf64-recoveryupd.prg
+
 SRC_TEST=magicFlash64Lib.s mainTest.s  zeropage.s screenCpy.s num.s screenNum.s
 OBJECTS_TEST=$(patsubst %.s,$(C64_BUILD_DIR)/%.o,$(patsubst %.c,$(C64_BUILD_DIR)/%.o,$(SRC_TEST)))
 TARGET_TEST=mf64-test.prg
@@ -132,7 +142,7 @@ C64_OBJ=$(patsubst %.s,$(C64_BUILD_DIR)/%.o,$(C64_SRC))
 
 C64_DEPS=$(patsubst %.o,%.d,$(C64_OBJ))
 
-c64: $(BUILD_DIR)/$(TARGET_UPD) $(BUILD_DIR)/$(TARGET_PROGRAMMER) $(BUILD_DIR)/$(TARGET_TEST) $(BUILD_DIR)/$(TARGET_MENU) $(BUILD_DIR)/$(TARGET_D64)
+c64: $(BUILD_DIR)/$(TARGET_UPD) $(BUILD_DIR)/$(TARGET_PROGRAMMER) $(BUILD_DIR)/$(TARGET_TEST) $(BUILD_DIR)/$(TARGET_MENU) $(BUILD_DIR)/$(TARGET_RECOVERY_UPD) $(BUILD_DIR)/$(TARGET_D64)
 
 $(C64_BUILD_DIR)/%.d: %.s Makefile
 	@mkdir -p $(C64_BUILD_DIR)
@@ -167,16 +177,21 @@ $(BUILD_DIR)/$(TARGET_UPD): $(OBJECTS_UPD) Makefile
 	$(C64_DAPRG) $@ -o $(C64_BUILD_DIR)/$(patsubst %.prg,%.orig.s,$(TARGET_UPD))
 	$(C64_FD) $(C64_BUILD_DIR)/$(patsubst %.prg,%.orig.s,$(TARGET_UPD)) $(C64_BUILD_DIR)/$(patsubst %.prg,%.sym,$(TARGET_UPD)) > $(C64_BUILD_DIR)/$(patsubst %.prg,%.s,$(TARGET_UPD))
 
+$(BUILD_DIR)/$(TARGET_RECOVERY_UPD): $(OBJECTS_RECOVERY_UPD) Makefile
+	$(C64_LD) $(C64_LDFLAGS_PRG) $(OBJECTS_RECOVERY_UPD) -o $@ -Ln $(C64_BUILD_DIR)/$(patsubst %.prg,%.sym,$(TARGET_RECOVERY_UPD)) 
+	$(C64_DAPRG) $@ -o $(C64_BUILD_DIR)/$(patsubst %.prg,%.orig.s,$(TARGET_RECOVERY_UPD))
+	$(C64_FD) $(C64_BUILD_DIR)/$(patsubst %.prg,%.orig.s,$(TARGET_RECOVERY_UPD)) $(C64_BUILD_DIR)/$(patsubst %.prg,%.sym,$(TARGET_RECOVERY_UPD)) > $(C64_BUILD_DIR)/$(patsubst %.prg,%.s,$(TARGET_RECOVERY_UPD))
+
 $(BUILD_DIR)/$(TARGET_TEST): $(OBJECTS_TEST) Makefile
 	$(C64_LD) $(C64_LDFLAGS_PRG) $(OBJECTS_TEST) -o $@ -Ln $(C64_BUILD_DIR)/$(patsubst %.prg,%.sym,$(TARGET_TEST)) 
 	$(C64_DAPRG) $@ -o $(C64_BUILD_DIR)/$(patsubst %.prg,%.orig.s,$(TARGET_TEST))
 	$(C64_FD) $(C64_BUILD_DIR)/$(patsubst %.prg,%.orig.s,$(TARGET_TEST)) $(C64_BUILD_DIR)/$(patsubst %.prg,%.sym,$(TARGET_TEST)) > $(C64_BUILD_DIR)/$(patsubst %.prg,%.s,$(TARGET_TEST))
 
-$(BUILD_DIR)/$(TARGET_D64): $(BUILD_DIR)/$(TARGET_UPD) $(BUILD_DIR)/$(TARGET_PROGRAMMER) $(BUILD_DIR)/$(TARGET_TEST) $(BUILD_DIR)/$(TARGET_MENU)
+$(BUILD_DIR)/$(TARGET_D64): $(BUILD_DIR)/$(TARGET_UPD) $(BUILD_DIR)/$(TARGET_PROGRAMMER) $(BUILD_DIR)/$(TARGET_TEST) $(BUILD_DIR)/$(TARGET_MENU) $(BUILD_DIR)/$(TARGET_RECOVERY_UPD)
 	cp $(DEFAULT_D64) $@
 	c1541 -attach $@ $(foreach var,$^,-write $(var) $(shell echo $(patsubst %.prg,%,$(patsubst $(BUILD_DIR)/%,%,$(var))) | tr A-Z a-z))
 
-put: $(BUILD_DIR)/$(TARGET_D64) $(BUILD_DIR)/$(TARGET_UPD) $(BUILD_DIR)/$(TARGET_PROGRAMMER) $(BUILD_DIR)/$(TARGET_TEST)
+put: $(BUILD_DIR)/$(TARGET_D64) $(BUILD_DIR)/$(TARGET_UPD) $(BUILD_DIR)/$(TARGET_PROGRAMMER) $(BUILD_DIR)/$(TARGET_TEST) $(BUILD_DIR)/$(TARGET_RECOVERY_UPD)
 	$(FTPPUT) Ultimate-II $(ULTIMATE_DIR) $^
 
 # version file
@@ -187,6 +202,7 @@ $(VERSION_FILE): Makefile
 	echo $(TARGET_TEST): $(VER_TEST_MAJOR).$(VER_TEST_MINOR) >> $(VERSION_FILE)
 	echo $(TARGET_UPD): $(VER_FW_MAJOR).$(VER_FW_MINOR) >> $(VERSION_FILE)
 	echo $(AVR_TARGET): $(VER_FW_MAJOR).$(VER_FW_MINOR) >> $(VERSION_FILE)
+	echo $(TARGET_RECOVERY_UPD): $(VER_RECOVERY) >> $(VERSION_FILE)
 
 
 

@@ -38,6 +38,9 @@
 .define CMD_SELECT_AFTER_INT 38
 .define CMD_SELECT_PREV 40
 .define CMD_SELECT_AFTER_RESTORE_INT 42
+.define CMD_GET_MODE 44
+.define CMD_GET_RECOVERY_VERSION 46
+.define CMD_RECOVERY_UPD 48
 
 .macro ROMRD addr
   bit $e000|((addr)&$1fff)

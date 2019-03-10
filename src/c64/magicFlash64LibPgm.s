@@ -228,6 +228,25 @@ ekWrEraseDone:
   plp
   rts
 
+.export _ekRecoveryUpd
+_ekRecoveryUpd:
+  php
+  sei
+
+  sta tmp3
+  stx tmp4
+
+  lda #$40
+  sta tmp5
+
+  lda #<((FW_ADDR-RECOVERY_ADDR)/(2*$20))
+  sta tmp6
+
+  jsr noBad
+  SEQ CMD_RECOVERY_UPD
+
+  jmp ekFwUpdLoop
+
 ; void __fastcall__ ekFwUpd(uint8_t *data, uint16_t len);
 .export _ekFwUpd
 _ekFwUpd:
@@ -240,7 +259,7 @@ _ekFwUpd:
   lda #$40
   sta tmp5
 
-  lda #$3c
+  lda #<(($1000-FW_ADDR)/2/$20)
   sta tmp6
 
   

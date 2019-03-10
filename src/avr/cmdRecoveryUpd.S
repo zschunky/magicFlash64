@@ -17,23 +17,23 @@
 
 #include "config.inc"
 
-.section .recovery,"ax",@progbits
+.text
 ;.org 0xeba,0xff
 .global __vectors
-.global cmdFwUpdImpl
-cmdFwUpdImpl:
+cmdRecoveryUpdate:
   cli
   ; setup start address 
-  ldi yl,lo8(__vectors)
-  ldi yh,hi8(__vectors)
+  ldi yl,lo8(recovery)
+  ldi yh,hi8(recovery)
 
   ; set pagesize
   ldi xl,lo8(SPM_PAGESIZE)
   ldi xh,hi8(SPM_PAGESIZE)
   ldi rTmp,ADDR_MASK
 
+
   ; set total max of pages
-  ldi rTmp4,lo8((0x1000-FW_ADDR)/SPM_PAGESIZE)
+  ldi rTmp4,lo8((FW_ADDR-RECOVERY_ADDR)/SPM_PAGESIZE)
 flashLoop:
   ldi rTmp3,lo8(SPM_PAGESIZE/2)
   movw _z,_y
@@ -94,16 +94,16 @@ flashDone:
   breq flashExit
   rcall flashErasePgm
 flashExit:
-  rjmp boot
+  .global __vectors
+  rjmp __vectors
 
 flashErasePgm:
   movw _z,_y
 
-  ; make sure only text is being written
+  ; make sure only recovery is being written
   tst rTmp4
   breq flashSkip
   dec rTmp4
-
 
   ; erase page
   ldi rTmp2,(1<<PGERS)|(1<<SPMEN)

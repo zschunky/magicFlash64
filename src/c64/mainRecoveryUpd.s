@@ -51,65 +51,47 @@ __STARTUP__:
   jsr _ekGetSelected
   sta slot
 
-  jsr _ekGetVersion
-  
-  ; if mj >= 1 ; bootLoader and recovery are present
-  cmp #0
-  beq :+
-    lda #<(fw+FW_ADDR)
-    ldx #>(fw+FW_ADDR)
-    jmp updCont
-:
-  ; else if minor >= 1 ; old 0.x fw
-  cpx #0
-  beq :+
-    lda #<fw
-    ldx #>fw
-    jmp updCont
-:
-  ; else 
+  ; get mode
   jsr _ekGetMode
-  ;   if mode == 1 ; recovery mode active
-  cmp #1 
-  bne :+
-    lda #55
-    sta slot
 
-    lda #<(fw+FW_ADDR)
-    ldx #>(fw+FW_ADDR)
-    jmp updCont
+  ; make sure we are in normal mode
+  cmp #2 
+  beq :+++
+    jsr restoreZp
+    cli
+    ldx #0
 :
-  ;   else if mode == 0 ; everything responded with 0 -> no magicFlash64 found
-  cmp #0 
+      lda invalidMsg,x
+      beq :+
+      jsr $ffd2
+      inx
+      bne :-
+:
+    rts
+:
+
+  ; check recovery version
+  jsr _ekGetRecoveryVersion
+  cmp #VER_RECOVERY
   bne :+++
     jsr restoreZp
     cli
     ldx #0
 :
-      lda nothingFoundMsg,x
+      lda upToDateMsg,x
       beq :+
       jsr $ffd2
       inx
       bne :-
 :
     rts
+:
 
-:
-  ;   else ; mode > 1 with ver=0.0 -> illegal
-    jsr restoreZp
-    cli
-    ldx #0
-:
-      lda invalidModeMsg,x
-      beq :+
-      jsr $ffd2
-      inx
-      bne :-
-:
-    rts
+  lda #<fw
+  ldx #>fw
 
 updCont:
-  jsr _ekFwUpd
+  jsr _ekRecoveryUpd
 
   lda slot
   jsr _ekSelect
@@ -146,17 +128,14 @@ zpSave:
 .export doneMsg
 doneMsg:
   .byte "update done",13,0
-.export nothingFoundMsg
-nothingFoundMsg:
-  .byte "no magicflash64 detected",13,0
-.export invalidModeMsg
-invalidModeMsg:
-  .byte "invalid mode detected",13,0
-.export fw
+.export invalidMsg
+invalidMsg:
+  .byte "invalid mode or not supported",13,0
+.export upToDateMsg
+upToDateMsg:
+  .byte "version already installed - abort",13,0
 fw:
-  .incbin "mf64-firmware.bin"
-fwEnd:
-  .res $1000-(fwEnd-fw),$ff
+  .incbin "mf64-firmware.bin",RECOVERY_ADDR,FW_ADDR-RECOVERY_ADDR
   
 
 

@@ -17,9 +17,10 @@
 
 #include "config.inc"
 
-.text
+.section .recovery,"ax",@progbits
 ; send one byte via nmi, value expected in tTmp
-sendByte:
+.global sendByteImpl
+sendByteImpl:
   ; disable interrupts
   cli
 

@@ -32,6 +32,17 @@ main:
   sbi RESET_PORT,RESET_P
   sbi OE_PORT,OE_P
 
+  ; check for sel13 connection (check for fuse if reset is disabled)
+  ldi zl,3
+  ldi zh,0
+  ldi rTmp,(1<<SPMEN)|(1<<BLBSET)
+  out SPMCSR,rTmp
+  lpm
+  ldi rTmp,0
+  sbrs r0,7
+  ldi rTmp,1
+  mov rSel13Old,rTmp
+
   ; set constant registers
   ldi rLookup,lo8(lookup)
   ldi rSel1418Mask,SEL14_18_MASK
@@ -58,17 +69,6 @@ main:
   out TCCR0A,rTmp
   ldi rTmp,4<<CS00
   out TCCR0B,rTmp
-
-  ; check for sel13 connection (check for fuse if reset is disabled)
-  ldi zl,3
-  ldi zh,0
-  ldi rTmp,(1<<SPMEN)|(1<<BLBSET)
-  out SPMCSR,rTmp
-  lpm
-  ldi rTmp,0
-  sbrs r0,7
-  ldi rTmp,1
-  mov rSel13Old,rTmp
 
   ; copy lookup table from flash into ram
   ldi rTmp4,lo8(__data_load_end)

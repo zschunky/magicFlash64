@@ -25,6 +25,13 @@
 
 .data
 
+seq:
+  STEP $00
+  STEP $2A
+  STEP $15
+  STEP $3F
+  rts
+  
 .export noBad
 noBad:
   NO_BAD
@@ -41,7 +48,8 @@ _ekLed:
   php
   sei
   jsr noBad
-  SEQ CMD_LED
+  jsr seq
+  STEP CMD_LED
   jsr ekStepA
   plp
   rts
@@ -53,7 +61,8 @@ _ekReset:
   php
   sei
   jsr noBad
-  SEQ CMD_RESET
+  jsr seq
+  STEP CMD_RESET
   plp
   rts
 
@@ -63,7 +72,8 @@ _ekSelect:
   php
   sei
   jsr noBad
-  SEQ CMD_SELECT
+  jsr seq
+  STEP CMD_SELECT
   jsr ekStepA
   plp
   rts
@@ -76,7 +86,8 @@ _ekSelectAfterInt:
   pha
   txa
   jsr noBad
-  SEQ CMD_SELECT_AFTER_INT
+  jsr seq
+  STEP CMD_SELECT_AFTER_INT
   jsr ekStepA
   pla
   jsr ekStepA
@@ -89,7 +100,8 @@ _ekSelectAfterRestoreInt:
   php
   sei
   jsr noBad
-  SEQ CMD_SELECT_AFTER_RESTORE_INT
+  jsr seq
+  STEP CMD_SELECT_AFTER_RESTORE_INT
   jsr ekStepA
   plp
   rts
@@ -103,7 +115,8 @@ _ekSetDefault:
   sei
 
   ; execute setDefault sequence
-  SEQ CMD_SET_DEFAULT
+  jsr seq
+  STEP CMD_SET_DEFAULT
   jsr ekStepA
 
   ; restore interrupt bit
@@ -120,7 +133,48 @@ _ekGetDefault:
   jsr noBad
 
   ; execute getDefault sequence
-  SEQ CMD_GET_DEFAULT
+  jsr seq
+  STEP CMD_GET_DEFAULT
+
+  ; read value
+  jsr ekRead
+
+  ; restore interrupt bit
+  plp
+  rts
+
+; uint8_t ekGetMode()
+.export _ekGetMode
+_ekGetMode:
+  ; disable irq
+  php
+  sei
+
+  jsr noBad
+
+  ; execute getMode sequence
+  jsr seq
+  STEP CMD_GET_MODE
+
+  ; read value
+  jsr ekRead
+
+  ; restore interrupt bit
+  plp
+  rts
+
+; uint8_t ekGetRecoveryVersion()
+.export _ekGetRecoveryVersion
+_ekGetRecoveryVersion:
+  ; disable irq
+  php
+  sei
+
+  jsr noBad
+
+  ; execute getMode sequence
+  jsr seq
+  STEP CMD_GET_RECOVERY_VERSION
 
   ; read value
   jsr ekRead
@@ -140,7 +194,8 @@ _ekGetPrev:
   jsr noBad
 
   ; execute getPrev sequence
-  SEQ CMD_GET_PREV
+  jsr seq
+  STEP CMD_GET_PREV
 
   ; read value
   jsr ekRead
@@ -159,7 +214,8 @@ _ekGetSelected:
   jsr noBad
 
   ; execute getSelected sequence
-  SEQ CMD_GET_SELECTED
+  jsr seq
+  STEP CMD_GET_SELECTED
 
   jsr ekRead
 
@@ -180,7 +236,8 @@ _ekSetRam:
 
   ; execute setRam sequence
   jsr noBad
-  SEQ CMD_SET_RAM
+  jsr seq
+  STEP CMD_SET_RAM
 ekAddrNibbles:
   jsr ekStepA
 
@@ -211,7 +268,8 @@ _ekGetRam:
   jsr noBad
 
   ; execute getRam sequence
-  SEQ CMD_GET_RAM
+  jsr seq
+  STEP CMD_GET_RAM
   jsr ekStepA
 
   ; read value
@@ -234,7 +292,8 @@ _ekSetEeprom:
 
   ; execute setEeprom sequence
   jsr noBad
-  SEQ CMD_SET_EEPROM
+  jsr seq
+  STEP CMD_SET_EEPROM
   jmp ekAddrNibbles
 
 ; uint8_t ekGetEeprom(uint8_t slot)
@@ -247,7 +306,8 @@ _ekGetEeprom:
   jsr noBad
 
   ; execute getEeprom sequence
-  SEQ CMD_GET_EEPROM
+  jsr seq
+  STEP CMD_GET_EEPROM
   jsr ekStepA
 
   ; read value
@@ -266,7 +326,8 @@ _ekGetVersion:
 
   ; execute getVersion sequence
   jsr noBad
-  SEQ CMD_GET_VERSION
+  jsr seq
+  STEP CMD_GET_VERSION
 
 
   jsr ekRead
