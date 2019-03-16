@@ -46,6 +46,9 @@ main:
   ; set constant registers
   ldi rLookup,lo8(lookup)
   ldi rSel1418Mask,SEL14_18_MASK
+  clr r00
+  ldi rTmp,0xff
+  mov rFF,rTmp
 
   ; set select slot
   ldi zh,hi8(eeDefaultSlot)
@@ -69,6 +72,14 @@ main:
   out TCCR0A,rTmp
   ldi rTmp,4<<CS00
   out TCCR0B,rTmp
+
+  ; configure timer2
+  ldi rTmp,75
+  sts OCR2A,rTmp
+  ldi rTmp,85+5
+  sts OCR2B,rTmp
+  ldi rTmp,1<<CS20
+  sts TCCR2B,rTmp
 
   ; copy lookup table from flash into ram
   ldi rTmp4,lo8(__data_load_end)
@@ -113,31 +124,59 @@ mainBegin:
 
   ; M A I N L O O P
 mainLoop:
-  ; check for magic sequence
+  ; check for magic sequence of 1st value and restart counter2
   waitOe
   in rTmp,ADDR_PIN
+  sts TCNT2,r00
   andi rTmp,ADDR_MASK
 mainLoop0:
   cpi rTmp,0
   brne mainLoop
 
+  ; reset counter2 flags
+  out TIFR2,rFF
+
+  ; check for magic sequence of 2nd value and restart counter2
   waitOe
   in rTmp,ADDR_PIN
+  sts TCNT2,r00
   andi rTmp,ADDR_MASK
   cpi rTmp,0x2a
   brne mainLoop0
 
+  ; reset counter2 flags and check if received magic value in time
+  in rTmp,TIFR2
+  out TIFR2,rFF
+  cpi rTmp,1<<OCF2A
+  brne mainLoop
+
+  ; check for magic sequence of 3rd value and restart counter2
   waitOe
   in rTmp,ADDR_PIN
+  sts TCNT2,r00
   andi rTmp,ADDR_MASK
   cpi rTmp,0x15
   brne mainLoop0
 
+  ; reset counter2 flags and check if received magic value in time
+  in rTmp,TIFR2
+  out TIFR2,rFF
+  cpi rTmp,1<<OCF2A
+  brne mainLoop
+
+  ; check for magic sequence of 4th value and restart counter2
   waitOe
   in rTmp,ADDR_PIN
+  sts TCNT2,r00
   andi rTmp,ADDR_MASK
   cpi rTmp,0x3f
   brne mainLoop0
+
+  ; reset counter2 flags and check if received magic value in time
+  in rTmp,TIFR2
+  out TIFR2,rFF
+  cpi rTmp,1<<OCF2A
+  brne mainLoop
 
   ; get command
   waitOe

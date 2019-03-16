@@ -97,6 +97,8 @@
 #define rRestoreSelect r14
 #define rSel13Old r13
 #define rTmp6 r12
+#define r00 r11
+#define rFF   r10
 
 #define zl r30
 #define zh r31
