@@ -60,7 +60,7 @@ slotInit:
   cmp #$ff
   beq :+
     tax
-    jmp :+++
+    jmp :++
 
 :
   ldx #0
@@ -560,6 +560,8 @@ keyReturn:
     lda #BOOT_SLOT
     jsr _ekSelectAfterRestoreInt
 :
+  ldx #$ff
+  txs
   jmp ($fffc)
 
 

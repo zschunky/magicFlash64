@@ -394,6 +394,9 @@ ekRead:
   ; shift carry into result
   ror tmp5
 
+  ; trigger bit received in case some cart hold nmi down
+  STEP $3f
+
   ; decrement bit count and jmp as long not all 8 bits have been processed
   dec tmp2
   bne :----

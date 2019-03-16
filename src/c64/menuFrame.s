@@ -68,14 +68,14 @@ menuFrame:
 
   ; get fw version number
   jsr _ekGetVersion
-  cmp #$00
-  bne :++
-    cpx #$00
-    bne :++
-:
-     inc $d020
-     jmp :-
-:
+;  cmp #$00
+;  bne :++
+;    cpx #$00
+;    bne :++
+;:
+;     inc $d020
+;     jmp :-
+;:
   tay
   txa
   pha
