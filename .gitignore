@@ -6,5 +6,12 @@ build/
 *.sw*
 *-bak
 _autosave-*
+gui_defaults.par
+*-rescue.lib
+*.dsn
+*.ses
+*.net
+*.rules
+sym-lib-table
 log.txt
 
