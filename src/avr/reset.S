@@ -62,16 +62,20 @@ RESET_VECT:
   ldi rTmp5,hi8(2*625)
   sbi TIFR0,OCF0A
 1:
-  sbic RESET_PIN,RESET_P
-  rjmp resetDone
+    sbic RESET_PIN,RESET_P
+    rjmp resetDone
 
-  sbis TIFR0,OCF0A
-  rjmp 1b
+    sbis RESTORE_PIN,RESTORE_P
+    rjmp resetRestore
 
-  sbi TIFR0,OCF0A
 
-  sbiw rTmp4,1
-  brne 1b
+    sbis TIFR0,OCF0A
+    rjmp 1b
+
+    sbi TIFR0,OCF0A
+
+    sbiw rTmp4,1
+    brne 1b
 
   ; set led blinking
   ldi rLed,0x24
@@ -86,9 +90,12 @@ RESET_VECT:
 
 
   ; wait for reset release
-1:
-  sbis RESET_PIN,RESET_P
-  rjmp 1b
+waitResetDone:
+    sbis RESTORE_PIN,RESTORE_P
+    rjmp resetRestorePrevSet
+
+    sbis RESET_PIN,RESET_P
+    rjmp waitResetDone
 
 resetDone:
   ; reset led
@@ -97,3 +104,23 @@ resetDone:
 
   rjmp mainBegin
 
+resetRestore:
+  ; remember current slot
+  mov rPrev,rSelect
+
+resetRestorePrevSet:
+  ; set led blinking
+  ldi rLed,0x31
+  rcall setLed
+
+  ; set backup-kernal slot
+  ldi rSelect,55
+  rcall setSelect
+
+waitResetRestoreDone:
+    sbis RESET_PIN,RESET_P
+    rjmp waitResetRestoreDone
+
+  rjmp resetDone
+
+  
