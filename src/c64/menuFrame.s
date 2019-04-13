@@ -67,7 +67,7 @@ menuFrame:
   sta screenPtr+1
 
   ; get fw version number
-  jsr _ekGetVersion
+  jsr _mf64GetVersion
 ;  cmp #$00
 ;  bne :++
 ;    cpx #$00

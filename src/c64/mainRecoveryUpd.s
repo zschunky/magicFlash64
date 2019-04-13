@@ -46,13 +46,13 @@ __STARTUP__:
 
 
   lda #$14
-  jsr _ekLed
+  jsr _mf64Led
 
-  jsr _ekGetSelected
+  jsr _mf64GetSelected
   sta slot
 
   ; get mode
-  jsr _ekGetMode
+  jsr _mf64GetMode
 
   ; make sure we are in normal mode
   cmp #2 
@@ -71,11 +71,11 @@ __STARTUP__:
 :
 
   ; check recovery version
-  jsr _ekGetRecoveryVersion
+  jsr _mf64GetRecoveryVersion
   cmp #VER_RECOVERY
   bne :+++
     lda #$18
-    jsr _ekLed
+    jsr _mf64Led
 
     jsr restoreZp
     cli
@@ -90,7 +90,7 @@ __STARTUP__:
     rts
 :
 
-  jsr _ekGetMcType
+  jsr _mf64GetMcType
   cmp #MC_TYPE_ATMEGA48_M20
   bne :+
     lda #<fwM20
@@ -104,7 +104,7 @@ __STARTUP__:
     jmp updCont
 :
   lda #$18
-  jsr _ekLed
+  jsr _mf64Led
 
   cli
 
@@ -120,7 +120,7 @@ __STARTUP__:
   rts
 
 updCont:
-  jsr _ekRecoveryUpd
+  jsr _mf64RecoveryUpd
 
   ; give atmega some time to restart
   ldx #0
@@ -132,7 +132,7 @@ updCont:
     bne :-
 
   lda slot
-  jsr _ekSelect
+  jsr _mf64Select
 
   jsr restoreZp
 

@@ -50,7 +50,7 @@ backupSlot:
 
   ; activate slot
   lda slot
-  jsr _ekSelect
+  jsr _mf64Select
 
   ; set srcPtr to Kernal Address
   lda #$00
@@ -64,7 +64,7 @@ backupSlot:
 
   ; activate kernal
   lda activeKernalSlot
-  jsr _ekSelect
+  jsr _mf64Select
   
   rts
 

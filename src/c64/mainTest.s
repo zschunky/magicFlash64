@@ -202,7 +202,7 @@ rdBckCheck:
   beq cont
 
   ; read back
-  jsr ekRead
+  jsr mf64Read
 
   sta $0401
   cmp cnt

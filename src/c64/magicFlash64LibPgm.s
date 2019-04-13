@@ -27,13 +27,13 @@
 
 .data
 
-.export _ekError
-_ekError:
+.export _mf64Error
+_mf64Error:
   .res 1
 
-; uint8_t __fastcall__ ekWrAutoSelect(uint8_t addr);
-.export _ekWrAutoSelect
-_ekWrAutoSelect:
+; uint8_t __fastcall__ mf64WrAutoSelect(uint8_t addr);
+.export _mf64WrAutoSelect
+_mf64WrAutoSelect:
   php
   sei
   sta :+ + 1 
@@ -54,12 +54,12 @@ _ekWrAutoSelect:
   plp
   rts
 
-; void __fastcall__ ekWrProgram(uint8_t *data);
-.export _ekWrProgram
-_ekWrProgram:
+; void __fastcall__ mf64WrProgram(uint8_t *data);
+.export _mf64WrProgram
+_mf64WrProgram:
 ;  jsr breakPoint
 ;  lda #0
-;  sta _ekError
+;  sta _mf64Error
 ;  rts
 
   php
@@ -68,21 +68,21 @@ _ekWrProgram:
   stx tmp2
 
   lda #$00
-  sta _ekError
+  sta _mf64Error
   sta tmp3
   lda #$e0
   sta tmp4
 
   ldy #0
-ekWrProgramLoop:
+mf64WrProgramLoop:
   lda #16
   sta tmp6
-ekWrProgramRetry:
+mf64WrProgramRetry:
   jsr noBad
 
   lda (tmp1),y
   cmp (tmp3),y
-  beq ekWrProgramCont
+  beq mf64WrProgramCont
 
   SEQ CMD_WR_MODE_PROGRAM
   ldx #$aa
@@ -103,15 +103,15 @@ ekWrProgramRetry:
 toggleSet:
   jsr noBad
   bit $e000
-  bvs ekWrProgramRetry2
-;  bvs ekWrProgramCont
+  bvs mf64WrProgramRetry2
+;  bvs mf64WrProgramCont
   bne stage2
 
 toggleCleared:
   jsr noBad
   bit $e000
-  bvc ekWrProgramRetry2
-  ;bvc ekWrProgramCont
+  bvc mf64WrProgramRetry2
+  ;bvc mf64WrProgramCont
   bne stage2
   beq toggleSet
 
@@ -121,8 +121,8 @@ stage2:
 
 stage2Set:
   bit $e000
-  bvs ekWrProgramRetry2
-  ;bvs ekWrProgramCont
+  bvs mf64WrProgramRetry2
+  ;bvs mf64WrProgramCont
 
 error:
   jsr noBad
@@ -130,19 +130,19 @@ error:
   ldx #$f0
   ROMWRX $0000
 
-ekWrProgramRetry2:
+mf64WrProgramRetry2:
   dec tmp6
-  bne ekWrProgramRetry
+  bne mf64WrProgramRetry
   ; fail
   lda #1
-  sta _ekError
-  jmp ekWrProgramCont
+  sta _mf64Error
+  jmp mf64WrProgramCont
 stage2Cleared:
   bit $e000
   bvs error
-  bvc ekWrProgramRetry2 ;****
+  bvc mf64WrProgramRetry2 ;****
 
-ekWrProgramCont:
+mf64WrProgramCont:
 ;  lda tmp3
 ;  sta $0400
 ;  lda tmp4
@@ -153,14 +153,14 @@ ekWrProgramCont:
   inc tmp2
 :
   inc tmp3
-  ;bne ekWrProgramLoop
+  ;bne mf64WrProgramLoop
   beq :+
-    jmp ekWrProgramLoop
+    jmp mf64WrProgramLoop
 :
   inc tmp4
-  ;bne ekWrProgramLoop
+  ;bne mf64WrProgramLoop
   beq :+
-    jmp ekWrProgramLoop
+    jmp mf64WrProgramLoop
 :
 
   jsr noBad
@@ -170,18 +170,18 @@ ekWrProgramCont:
   plp
   rts
 
-; void ekWrErase();
-.export _ekWrErase
-_ekWrErase:
+; void mf64WrErase();
+.export _mf64WrErase
+_mf64WrErase:
 ;  lda #0
-;  sta _ekError
+;  sta _mf64Error
 ;  rts
 
   php
   sei
 
   lda #0
-  sta _ekError
+  sta _mf64Error
 
   jsr noBad
 
@@ -199,25 +199,25 @@ _ekWrErase:
   ldx #$30
   ROMWRX $0000
 
-ekWrEraseRd:
+mf64WrEraseRd:
   jsr noBad
   ROMRDA $0000
   tax
   and #$80
   cmp #$80
-  beq ekWrEraseDone
+  beq mf64WrEraseDone
 
   txa
   and #$20
-  beq ekWrEraseRd
+  beq mf64WrEraseRd
 
   ROMRDA $0000
   and #$80
   cmp #$80
-  beq ekWrEraseDone
+  beq mf64WrEraseDone
 
   ; fail
-  inc _ekError
+  inc _mf64Error
 
   jsr noBad
   SEQ CMD_WR_MODE_RESET
@@ -228,13 +228,13 @@ ekWrEraseRd:
   rts
 
 
-ekWrEraseDone:
+mf64WrEraseDone:
 
   plp
   rts
 
-.export _ekRecoveryUpd
-_ekRecoveryUpd:
+.export _mf64RecoveryUpd
+_mf64RecoveryUpd:
   php
   sei
 
@@ -250,11 +250,11 @@ _ekRecoveryUpd:
   jsr noBad
   SEQ CMD_RECOVERY_UPD
 
-  jmp ekFwUpdLoop
+  jmp mf64FwUpdLoop
 
-; void __fastcall__ ekFwUpdOld(uint8_t *data, uint16_t len);
-.export _ekFwUpdOld
-_ekFwUpdOld:
+; void __fastcall__ mf64FwUpdOld(uint8_t *data, uint16_t len);
+.export _mf64FwUpdOld
+_mf64FwUpdOld:
   php
   sei
 
@@ -271,11 +271,11 @@ _ekFwUpdOld:
   jsr noBad
   SEQ CMD_FW_UPD_OLD
 
-  jmp ekFwUpdLoop
+  jmp mf64FwUpdLoop
 
-; void __fastcall__ ekFwUpd(uint8_t *data, uint16_t len);
-.export _ekFwUpd
-_ekFwUpd:
+; void __fastcall__ mf64FwUpd(uint8_t *data, uint16_t len);
+.export _mf64FwUpd
+_mf64FwUpd:
   php
   sei
 
@@ -292,7 +292,7 @@ _ekFwUpd:
   jsr noBad
   SEQ CMD_FW_UPD
 
-ekFwUpdLoop:
+mf64FwUpdLoop:
   jsr noBad
 
   ldy #0
@@ -313,7 +313,7 @@ ekFwUpdLoop:
   inc tmp4
 :
   dec tmp5
-  bne ekFwUpdLoop
+  bne mf64FwUpdLoop
 
   lda #$40
   sta tmp5
@@ -327,7 +327,7 @@ ekFwUpdLoop:
   bne :-
 
   dec tmp6
-  bne ekFwUpdLoop
+  bne mf64FwUpdLoop
 fwUpdDone:
   jsr noBad
   STEP $3f
@@ -335,9 +335,9 @@ fwUpdDone:
   plp
   rts
 
-; uint16_t ekGetMcType()
-.export _ekGetMcType
-_ekGetMcType:
+; uint16_t mf64GetMcType()
+.export _mf64GetMcType
+_mf64GetMcType:
   ; disable irq
   php
   sei
@@ -347,7 +347,7 @@ _ekGetMcType:
   SEQ CMD_GET_MC_TYPE
 
 
-  jsr ekRead
+  jsr mf64Read
 
   ; restore interrupt bit
   plp

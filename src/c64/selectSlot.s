@@ -288,7 +288,7 @@ renameDone:
 keyD:
   lda selectedSlot
   sta defaultSlot
-  jsr _ekSetDefault
+  jsr _mf64SetDefault
   
   jmp selectSlot
 
@@ -303,7 +303,7 @@ keyU:
 keyV:
   ; select kernal slot
   lda selectedSlot
-  jsr _ekSelect
+  jsr _mf64Select
   
   ldx #0
 :
@@ -324,7 +324,7 @@ keyV:
   bne :-
 
   lda activeKernalSlot
-  jsr _ekSelect
+  jsr _mf64Select
 
 :
   ldax #KEY2MASK(KEY_SPACE)
@@ -451,8 +451,8 @@ keyE:
 .export keyB
 keyB:
   lda selectedSlot
-  jsr _ekSelect
-  jsr _ekReset
+  jsr _mf64Select
+  jsr _mf64Reset
   jmp selectSlot
 
 .export keyP
@@ -633,17 +633,17 @@ backupLoopInc:
 
       ; activare erase block
       lda eraseBlock
-      jsr _ekSelect
+      jsr _mf64Select
 
       ; erase
-      jsr _ekWrErase
+      jsr _mf64WrErase
 
       ; select active kernal
       lda activeKernalSlot
-      jsr _ekSelect
+      jsr _mf64Select
 
       ;check for erase error
-      lda _ekError
+      lda _mf64Error
       beq :+
         ldx eraseBlock
         jsr printStatusErrorErase
@@ -670,19 +670,19 @@ backupLoopInc:
 
         ; activate slot
         lda slot
-        jsr _ekSelect
+        jsr _mf64Select
 
         ; pgm
         lda srcPtr
         ldx srcPtr+1
-        jsr _ekWrProgram
+        jsr _mf64WrProgram
 
         ; activate kernal slot
         lda activeKernalSlot
-        jsr _ekSelect
+        jsr _mf64Select
 
         ; check for pgm error
-        lda _ekError
+        lda _mf64Error
         beq :+
           ldx slot
           jsr printStatusErrorPgm
@@ -714,19 +714,19 @@ restoreLoop:
             jsr printStatusReProgram
             ; activate slot
             lda slot
-            jsr _ekSelect
+            jsr _mf64Select
 
             ; pgm
             lda srcPtr
             ldx srcPtr+1
-            jsr _ekWrProgram
+            jsr _mf64WrProgram
 
             ; activate kernal slot
             lda activeKernalSlot
-            jsr _ekSelect
+            jsr _mf64Select
 
             ; check for pgm error
-            lda _ekError
+            lda _mf64Error
             beq :+
               ldx slot
               jsr printStatusErrorPgm
@@ -786,7 +786,7 @@ pgmInnerLoop:
 
           ; select slot for programming
           lda slot
-          jsr _ekSelect
+          jsr _mf64Select
 
           ; patch slot table if required
           jsr patchTable
@@ -798,14 +798,14 @@ pgmInnerLoop:
           ; pgm
           lda srcPtr
           ldx srcPtr+1
-          jsr _ekWrProgram
+          jsr _mf64WrProgram
 
           ; activate kernal
           lda activeKernalSlot
-          jsr _ekSelect
+          jsr _mf64Select
 
           ; check for pgm erro
-          lda _ekError
+          lda _mf64Error
           beq :+
             ldx slot
             jsr printStatusErrorPgm
@@ -832,7 +832,7 @@ pgmLoopInc:
 
   ; activate kernal
   lda activeKernalSlot
-  jsr _ekSelect
+  jsr _mf64Select
 
   jsr slotInit
   lda #0

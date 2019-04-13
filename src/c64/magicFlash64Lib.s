@@ -37,27 +37,27 @@ noBad:
   NO_BAD
   rts
 
-.export ekStepA
-ekStepA:
+.export mf64StepA
+mf64StepA:
   STEPA
   rts
 
-; void __fastcall__ ekLed(uint8_t mode);
-.export _ekLed
-_ekLed:
+; void __fastcall__ mf64Led(uint8_t mode);
+.export _mf64Led
+_mf64Led:
   php
   sei
   jsr noBad
   jsr seq
   STEP CMD_LED
-  jsr ekStepA
+  jsr mf64StepA
   plp
   rts
   
 
-; void ekReset();
-.export _ekReset
-_ekReset:
+; void mf64Reset();
+.export _mf64Reset
+_mf64Reset:
   php
   sei
   jsr noBad
@@ -66,9 +66,9 @@ _ekReset:
   plp
   rts
 
-; void ekStall();
-.export _ekStall
-_ekStall:
+; void mf64Stall();
+.export _mf64Stall
+_mf64Stall:
   php
   sei
   jsr noBad
@@ -77,21 +77,21 @@ _ekStall:
   plp
   rts
 
-; void __fastcall__ ekSelect(uint8_t slot);
-.export _ekSelect
-_ekSelect:
+; void __fastcall__ mf64Select(uint8_t slot);
+.export _mf64Select
+_mf64Select:
   php
   sei
   jsr noBad
   jsr seq
   STEP CMD_SELECT
-  jsr ekStepA
+  jsr mf64StepA
   plp
   rts
 
-; void __fastcall__ ekSelectAfterInt(uint8_t slot);
-.export _ekSelectAfterInt
-_ekSelectAfterInt:
+; void __fastcall__ mf64SelectAfterInt(uint8_t slot);
+.export _mf64SelectAfterInt
+_mf64SelectAfterInt:
   php
   sei
   pha
@@ -99,28 +99,28 @@ _ekSelectAfterInt:
   jsr noBad
   jsr seq
   STEP CMD_SELECT_AFTER_INT
-  jsr ekStepA
+  jsr mf64StepA
   pla
-  jsr ekStepA
+  jsr mf64StepA
   plp
   rts
 
-; void __fastcall__ ekSelectAfterRestoreInt(uint8_t slot);
-.export _ekSelectAfterRestoreInt
-_ekSelectAfterRestoreInt:
+; void __fastcall__ mf64SelectAfterRestoreInt(uint8_t slot);
+.export _mf64SelectAfterRestoreInt
+_mf64SelectAfterRestoreInt:
   php
   sei
   jsr noBad
   jsr seq
   STEP CMD_SELECT_AFTER_RESTORE_INT
-  jsr ekStepA
+  jsr mf64StepA
   plp
   rts
 
 
-; void __fastcall__ ekSetDefault(uint8_t slot);
-.export _ekSetDefault
-_ekSetDefault:
+; void __fastcall__ mf64SetDefault(uint8_t slot);
+.export _mf64SetDefault
+_mf64SetDefault:
   ; disable irq
   php
   sei
@@ -128,15 +128,15 @@ _ekSetDefault:
   ; execute setDefault sequence
   jsr seq
   STEP CMD_SET_DEFAULT
-  jsr ekStepA
+  jsr mf64StepA
 
   ; restore interrupt bit
   plp
   rts
 
-; uint8_t ekGetDefault()
-.export _ekGetDefault
-_ekGetDefault:
+; uint8_t mf64GetDefault()
+.export _mf64GetDefault
+_mf64GetDefault:
   ; disable irq
   php
   sei
@@ -148,15 +148,15 @@ _ekGetDefault:
   STEP CMD_GET_DEFAULT
 
   ; read value
-  jsr ekRead
+  jsr mf64Read
 
   ; restore interrupt bit
   plp
   rts
 
-; uint8_t ekGetMode()
-.export _ekGetMode
-_ekGetMode:
+; uint8_t mf64GetMode()
+.export _mf64GetMode
+_mf64GetMode:
   ; disable irq
   php
   sei
@@ -168,15 +168,15 @@ _ekGetMode:
   STEP CMD_GET_MODE
 
   ; read value
-  jsr ekRead
+  jsr mf64Read
 
   ; restore interrupt bit
   plp
   rts
 
-; uint8_t ekGetRecoveryVersion()
-.export _ekGetRecoveryVersion
-_ekGetRecoveryVersion:
+; uint8_t mf64GetRecoveryVersion()
+.export _mf64GetRecoveryVersion
+_mf64GetRecoveryVersion:
   ; disable irq
   php
   sei
@@ -188,16 +188,16 @@ _ekGetRecoveryVersion:
   STEP CMD_GET_RECOVERY_VERSION
 
   ; read value
-  jsr ekRead
+  jsr mf64Read
 
   ; restore interrupt bit
   plp
   rts
 
 
-; uint8_t ekGetPrev()
-.export _ekGetPrev
-_ekGetPrev:
+; uint8_t mf64GetPrev()
+.export _mf64GetPrev
+_mf64GetPrev:
   ; disable irq
   php
   sei
@@ -209,15 +209,15 @@ _ekGetPrev:
   STEP CMD_GET_PREV
 
   ; read value
-  jsr ekRead
+  jsr mf64Read
 
   ; restore interrupt bit
   plp
   rts
 
-; uint8_t ekGetSelected()
-.export _ekGetSelected
-_ekGetSelected:
+; uint8_t mf64GetSelected()
+.export _mf64GetSelected
+_mf64GetSelected:
   ; disable irq
   php
   sei
@@ -228,15 +228,15 @@ _ekGetSelected:
   jsr seq
   STEP CMD_GET_SELECTED
 
-  jsr ekRead
+  jsr mf64Read
 
   ; restore interrupt bit
   plp
   rts
 
-; void __fastcall__ ekSetRam x:slot a:data
-.export _ekSetRam
-_ekSetRam:
+; void __fastcall__ mf64SetRam x:slot a:data
+.export _mf64SetRam
+_mf64SetRam:
   ; disable irq
   php
   sei
@@ -249,13 +249,13 @@ _ekSetRam:
   jsr noBad
   jsr seq
   STEP CMD_SET_RAM
-ekAddrNibbles:
-  jsr ekStepA
+mf64AddrNibbles:
+  jsr mf64StepA
 
   ; get low nibble
   lda tmp3
   and #$0f
-  jsr ekStepA
+  jsr mf64StepA
 
   ; get high nibble
   lda tmp3
@@ -263,15 +263,15 @@ ekAddrNibbles:
   lsr
   lsr
   lsr
-  jsr ekStepA
+  jsr mf64StepA
 
   ; restore interrupt bit
   plp
   rts
 
-; uint8_t ekGetRam(uint8_t slot)
-.export _ekGetRam
-_ekGetRam:
+; uint8_t mf64GetRam(uint8_t slot)
+.export _mf64GetRam
+_mf64GetRam:
   ; disable irq
   php
   sei
@@ -281,18 +281,18 @@ _ekGetRam:
   ; execute getRam sequence
   jsr seq
   STEP CMD_GET_RAM
-  jsr ekStepA
+  jsr mf64StepA
 
   ; read value
-  jsr ekRead
+  jsr mf64Read
 
   ; restore interrupt bit
   plp
   rts
 
-; void __fastcall__ ekSetEeprom x:slot a:data
-.export _ekSetEeprom
-_ekSetEeprom:
+; void __fastcall__ mf64SetEeprom x:slot a:data
+.export _mf64SetEeprom
+_mf64SetEeprom:
   ; disable irq
   php
   sei
@@ -305,11 +305,11 @@ _ekSetEeprom:
   jsr noBad
   jsr seq
   STEP CMD_SET_EEPROM
-  jmp ekAddrNibbles
+  jmp mf64AddrNibbles
 
-; uint8_t ekGetEeprom(uint8_t slot)
-.export _ekGetEeprom
-_ekGetEeprom:
+; uint8_t mf64GetEeprom(uint8_t slot)
+.export _mf64GetEeprom
+_mf64GetEeprom:
   ; disable irq
   php
   sei
@@ -319,18 +319,18 @@ _ekGetEeprom:
   ; execute getEeprom sequence
   jsr seq
   STEP CMD_GET_EEPROM
-  jsr ekStepA
+  jsr mf64StepA
 
   ; read value
-  jsr ekRead
+  jsr mf64Read
 
   ; restore interrupt bit
   plp
   rts
 
-; uint16_t ekGetVersion()
-.export _ekGetVersion
-_ekGetVersion:
+; uint16_t mf64GetVersion()
+.export _mf64GetVersion
+_mf64GetVersion:
   ; disable irq
   php
   sei
@@ -341,9 +341,9 @@ _ekGetVersion:
   STEP CMD_GET_VERSION
 
 
-  jsr ekRead
+  jsr mf64Read
   pha
-  jsr ekRead
+  jsr mf64Read
   tax
   pla
 
@@ -353,17 +353,17 @@ _ekGetVersion:
 
 
 
-.export ekRead
-ekRead:
+.export mf64Read
+mf64Read:
   ; backup nmi vector
   ldy $0318
   ldx $0319
   sty tmp3
   stx tmp4
 
-  ; set ekReadNmi as nmi vector
-  ldy #<ekReadNmi
-  ldx #>ekReadNmi
+  ; set mf64ReadNmi as nmi vector
+  ldy #<mf64ReadNmi
+  ldx #>mf64ReadNmi
   sty $0318
   stx $0319
 
@@ -422,12 +422,12 @@ ekRead:
   lda tmp5
   rts
 
-.export ekReadNmi
-ekReadNmi:
+.export mf64ReadNmi
+mf64ReadNmi:
   inc tmp1
   rti
-.export ekEnd
-ekEnd:
+.export mf64End
+mf64End:
 
   
 

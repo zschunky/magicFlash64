@@ -52,11 +52,11 @@ slotInit:
   lda #$00
   sta selectedTab
 
-  jsr _ekGetDefault
+  jsr _mf64GetDefault
   ;lda #$3f
   sta defaultSlot
 
-  jsr _ekGetPrev
+  jsr _mf64GetPrev
   cmp #$ff
   beq :+
     tax
@@ -545,7 +545,7 @@ keyReturn:
 :
   lda selectedSlot
 :
-  jsr _ekSelect
+  jsr _mf64Select
 
   lda selectedTab
   cmp #0
@@ -554,11 +554,11 @@ keyReturn:
     bne :+
       lda #BOOT_SLOT
       ldx #8
-      jsr _ekSelectAfterInt
+      jsr _mf64SelectAfterInt
       jmp :++
 :
     lda #BOOT_SLOT
-    jsr _ekSelectAfterRestoreInt
+    jsr _mf64SelectAfterRestoreInt
 
 :
       lda $d012

@@ -108,7 +108,7 @@ slotInit:
   sta screenPtr+1
 
   ; get fw version number
-  jsr _ekGetVersion
+  jsr _mf64GetVersion
   cmp #$00
   bne :+
     cpx #$00
@@ -141,15 +141,15 @@ slotInit:
   jsr screenNum0
 
   ; get select kernal slot and remember it
-  jsr _ekGetSelected
+  jsr _mf64GetSelected
   sta activeKernalSlot
 
-  jsr _ekGetDefault
+  jsr _mf64GetDefault
   ;lda #$3f
   sta defaultSlot
 
   lda #BOOT_SLOT
-  jsr _ekSelect
+  jsr _mf64Select
   ldx #0
 :
   lda $e000,x
@@ -176,7 +176,7 @@ slotInit:
 
   ; activate active kernal
   lda activeKernalSlot
-  jsr _ekSelect
+  jsr _mf64Select
 
   lda #0
   sta selectedSlot
@@ -369,7 +369,7 @@ checkLoop:
     
     ; activate slot
     lda slot
-    jsr _ekSelect
+    jsr _mf64Select
 
     ; check slot type for erased or not
     ldx slot
@@ -385,7 +385,7 @@ checkLoop:
       beq checkCont
         ; active active kernal (in case someone wants to reset)
         lda activeKernalSlot
-        jsr _ekSelect
+        jsr _mf64Select
             
         ; print unexpected message
         ldx slot
@@ -418,7 +418,7 @@ checkErasedLoop:
 checkEraseUnexp:
     ; activate active kernal
     lda activeKernalSlot
-    jsr _ekSelect
+    jsr _mf64Select
         
     ; print unexpected message
     ldx slot
@@ -433,7 +433,7 @@ checkCont:
 
   ; activate active kernal
   lda activeKernalSlot
-  jsr _ekSelect
+  jsr _mf64Select
   rts
 
 

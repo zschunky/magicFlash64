@@ -49,12 +49,12 @@ __STARTUP__:
 
 
   lda #$14
-  jsr _ekLed
+  jsr _mf64Led
 
-  jsr _ekGetSelected
+  jsr _mf64GetSelected
   sta slot
 
-  jsr _ekGetMcType
+  jsr _mf64GetMcType
   cmp #MC_TYPE_ATMEGA48_DOT
   bne :+
     lda #<fwDot
@@ -89,7 +89,7 @@ __STARTUP__:
 
 updCheckVersion:
 
-  jsr _ekGetVersion
+  jsr _mf64GetVersion
   
   ; if mj >= 1 ; bootLoader and recovery are present
   cmp #0
@@ -107,7 +107,7 @@ updCheckVersion:
   cpx #0
   bne updCont
   ; else 
-  jsr _ekGetMode
+  jsr _mf64GetMode
   ;   if mode == 1 ; recovery mode active
   cmp #1 
   bne :+
@@ -155,7 +155,7 @@ updCheckVersion:
 updCont:
   lda fwPtr
   ldx fwPtr+1
-  jsr _ekFwUpd
+  jsr _mf64FwUpd
 
   ; give atmega some time to restart
   ldx #0
@@ -169,7 +169,7 @@ updCont:
 
 
   lda slot
-  jsr _ekSelect
+  jsr _mf64Select
 
   jsr restoreZp
 
