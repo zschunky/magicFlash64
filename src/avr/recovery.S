@@ -29,6 +29,16 @@ sendByte:
 getRecoveryVersion:
   ldi rTmp,VER_RECOVERY
   ret
+syncInit:
+#ifdef M20
+syncInitImpl:
+#endif
+  rjmp syncInitImpl
+sync:
+#ifdef M20
+syncImpl:
+#endif
+  rjmp syncImpl
 
 
 .section .recovery,"ax",@progbits
@@ -42,6 +52,11 @@ recoveryImpl:
   sbi RESET_PORT,RESET_P
   sbi OE_PORT,OE_P
 
+
+  ; sync init
+  rcall syncInitImpl
+
+#ifdef M20
   ; check for sel13 connection (check for fuse if reset is disabled)
   ldi zl,3
   ldi zh,0
@@ -52,6 +67,13 @@ recoveryImpl:
   sbrs r0,7
   ldi rTmp,1
   mov rSel13Old,rTmp
+#endif
+
+  ; set constant registers
+  ldi rSel1418Mask,SEL14_18_MASK
+  clr r00
+  ldi rTmp,0xff
+  mov rFF,rTmp
 
   ; select backup slot 55
   ldi rSelect,55
@@ -79,57 +101,68 @@ recoveryImpl:
 
   ; loop for commands
 recoveryLoop:
+  SYNC
+recoveryLoopInSync:
+  ; check for magic sequence of 1st value and restart counter2
   waitOe
-  in rTmp,ADDR_PIN
-  andi rTmp,ADDR_MASK
-recoveryLoop0:
+
+  dotWait 1
   cpi rTmp,0
-  brne recoveryLoop
+  brne recoveryLoopInSync
+  dotWait 1
 
+  ; check for magic sequence of 2nd value and restart counter2
+recoveryLoop2a:
   waitOe
-  in rTmp,ADDR_PIN
-  andi rTmp,ADDR_MASK
   cpi rTmp,0x2a
-  brne recoveryLoop0
+  brne recoveryLoop0Check
 
+  dotWait 2
+
+  ; check for magic sequence of 3rd value and restart counter2
   waitOe
-  in rTmp,ADDR_PIN
-  andi rTmp,ADDR_MASK
   cpi rTmp,0x15
-  brne recoveryLoop0
+  brne recoveryLoop0Check
 
+  dotWait 2
+
+  ; check for magic sequence of 4th value and restart counter2
   waitOe
-  in rTmp,ADDR_PIN
-  andi rTmp,ADDR_MASK
   cpi rTmp,0x3f
-  brne recoveryLoop0
+  brne recoveryLoop0Check
+
+  dotWait 2
 
   ; get command
-  waitOe
-  in rCmd,ADDR_PIN
-  andi rCmd,CMD_MASK
+  waitOe rCmd                   ; 0+4
+  dotWait 1                     ; 4+1
+  sbrc rCmd,0                   ; 5+1
+    rjmp recoveryLoopInSync     ; 6+2/1
 
-  cpi rCmd,4
-  breq cmdSelectRecovery
 
-  cpi rCmd,44
-  breq cmdGetModeRecovery
+  cpi rCmd,4                    ; 7+1
+  breq cmdSelectRecovery        ; 0+2/1
 
-  cpi rCmd,46
-  breq cmdGetRecoveryVersionRecovery
+  cpi rCmd,44                   ; 1+1
+  breq cmdGetModeRecovery       ; 2+2/1
 
-  cpi rCmd,12
-  brne recoveryLoop
+  cpi rCmd,46                   ; 3+1
+  breq cmdGetRecoveryVersionRecovery ; 4+2/1
 
-  cbi LED_PORT,LED_P
-  rjmp cmdFwUpdImpl
+  cpi rCmd,36                   ; 5+1
+  breq cmdGetMcTypeRecovery     ; 6+2/1
+  
+  cpi rCmd,52                   ; 7+1
+  brne recoveryLoop             ; 0+2/1
+
+  cbi LED_PORT,LED_P            ; 1+2
+  rjmp cmdFwUpdImpl             ; 3+2
     
   ; S E L E C T   S L O T
 cmdSelectRecovery:
+  dotWait 6            ; 2+6
   ; get argument
-  waitOe
-  in rSelect,ADDR_PIN
-  andi rSelect,ADDR_MASK
+  waitOe               ; 0+4
 
   ; apply selected slot
   rcall setSelectImpl
@@ -147,3 +180,17 @@ cmdGetRecoveryVersionRecovery:
   rcall sendByte
   rjmp recoveryLoop
 
+recoveryLoop0Check:
+  cpi rTmp,0
+
+  dotWait 4
+  breq 1f
+
+  dotWait 1
+  rjmp recoveryLoopInSync
+1:
+  rjmp recoveryLoop2a
+cmdGetMcTypeRecovery:
+  ldi rTmp,MC_TYPE
+  rcall sendByte
+  rjmp recoveryLoop

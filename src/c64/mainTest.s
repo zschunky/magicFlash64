@@ -149,7 +149,7 @@ __STARTUP__:
   STEPA
 loop:
   lda cnt
-  ;sta $0400
+  sta $0400
 
   ; set rd/write regs
   lda cnt
@@ -204,7 +204,7 @@ rdBckCheck:
   ; read back
   jsr ekRead
 
-  ;sta $0401
+  sta $0401
   cmp cnt
   bne error
 

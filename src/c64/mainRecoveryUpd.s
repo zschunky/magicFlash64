@@ -74,6 +74,9 @@ __STARTUP__:
   jsr _ekGetRecoveryVersion
   cmp #VER_RECOVERY
   bne :+++
+    lda #$18
+    jsr _ekLed
+
     jsr restoreZp
     cli
     ldx #0
@@ -87,11 +90,46 @@ __STARTUP__:
     rts
 :
 
-  lda #<fw
-  ldx #>fw
+  jsr _ekGetMcType
+  cmp #MC_TYPE_ATMEGA48_M20
+  bne :+
+    lda #<fwM20
+    ldx #>fwM20
+    jmp updCont
+:
+  cmp #MC_TYPE_ATMEGA48_DOT
+  bne :+
+    lda #<fwDot
+    ldx #>fwDot
+    jmp updCont
+:
+  lda #$18
+  jsr _ekLed
+
+  cli
+
+  ldx #0
+:
+    lda wrongMcType,x
+    beq :+
+    jsr $ffd2
+    inx
+    bne :-
+:
+
+  rts
 
 updCont:
   jsr _ekRecoveryUpd
+
+  ; give atmega some time to restart
+  ldx #0
+  ldy #32
+:
+    dex
+    bne :-
+    dey
+    bne :-
 
   lda slot
   jsr _ekSelect
@@ -134,8 +172,13 @@ invalidMsg:
 .export upToDateMsg
 upToDateMsg:
   .byte "version already installed - abort",13,0
-fw:
-  .incbin "mf64-firmware.bin",RECOVERY_ADDR,FW_ADDR-RECOVERY_ADDR
+.export wrongMcType
+wrongMcType:
+  .byte "unknown microcontroller detected - abort",13,0
+fwM20:
+  .incbin "mf64-m20-firmware.bin",RECOVERY_ADDR,FW_ADDR-RECOVERY_ADDR
+fwDot:
+  .incbin "mf64-dot-firmware.bin",RECOVERY_ADDR,FW_ADDR-RECOVERY_ADDR
   
 
 

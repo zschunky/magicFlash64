@@ -66,6 +66,17 @@ _ekReset:
   plp
   rts
 
+; void ekStall();
+.export _ekStall
+_ekStall:
+  php
+  sei
+  jsr noBad
+  jsr seq
+  STEP CMD_STALL
+  plp
+  rts
+
 ; void __fastcall__ ekSelect(uint8_t slot);
 .export _ekSelect
 _ekSelect:

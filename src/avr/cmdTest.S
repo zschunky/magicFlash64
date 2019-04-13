@@ -19,22 +19,27 @@
 
 .text
 cmdTest:
+  ; get address argument
+  waitOe rTmp
+  mov rTmp10,rTmp
+
   ; disable LED
   ldi rLed,0x10
   rcall setLed
 
-  ; get address argument
-  waitOe
-  in rTmp4,ADDR_PIN
+  mov rTmp4,rTmp10
   andi rTmp4,7
 
   clr rLoop
+cmdTestLoopBegin:
+  SYNC
 cmdTestLoop:
   ; wait for read at 0x00
   waitOe
-  in rTmp2,ADDR_PIN
-  andi rTmp2,ADDR_MASK
+  dotWait 1
+  tst rTmp 
   brne cmdTestLoop
+
 
   mov rTmp3,rLoop
   andi rTmp3,ADDR_MASK
@@ -44,12 +49,10 @@ cmdTestRd:
   rjmp cmdTestWr
 
   ldi rTmp2,32
+  SYNC
 cmdTestRdLoop:
   ; loop while OE is low
   waitOe
-
-  in rTmp,ADDR_PIN
-  andi rTmp,ADDR_MASK
 
   cp rTmp3,rTmp
   brne cmdTestFailRd
@@ -58,6 +61,7 @@ cmdTestRdLoop:
   eor rTmp3,rTmp
 
   dec rTmp2
+  dotWait 5
   brne cmdTestRdLoop
 
   
@@ -66,23 +70,19 @@ cmdTestWr:
   rjmp cmdTestRdBck
 
   ldi rTmp2,32
+  SYNC
 cmdTestWrLoop:
   waitWr
 
-  nop
-  nop
+  cp rTmp3,rTmp      ; 5
+  brne cmdTestFailWr ; 6
 
-  in rTmp,ADDR_PIN
-  andi rTmp,ADDR_MASK
+  ldi rTmp,ADDR_MASK ; 7
+  eor rTmp3,rTmp     ; 8
 
-  cp rTmp3,rTmp
-  brne cmdTestFailWr
-
-  ldi rTmp,ADDR_MASK
-  eor rTmp3,rTmp
-
-  dec rTmp2
-  brne cmdTestWrLoop
+  dec rTmp2          ; 1
+  dotWait 5          ; 6
+  brne cmdTestWrLoop ; 8
 
 cmdTestRdBck:
   sbrs rTmp4,2
@@ -94,7 +94,7 @@ cmdTestRdBck:
 cmdTestCont:
   inc rLoop
 
-  rjmp cmdTestLoop
+  rjmp cmdTestLoopBegin
 cmdTestFailRd:
   ldi rLed,0x18
   rcall setLed

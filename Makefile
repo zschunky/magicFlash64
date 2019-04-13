@@ -29,22 +29,22 @@ VER_PCB_MAJOR=0
 VER_PCB_MINOR=2
 
 VER_MENU_MAJOR=0
-VER_MENU_MINOR=5
+VER_MENU_MINOR=6
 
 VER_PROGRAMMER_MAJOR=0
 VER_PROGRAMMER_MINOR=4
 
 VER_FW_MAJOR=1
-VER_FW_MINOR=0
+VER_FW_MINOR=1
 
 VER_TEST_MAJOR=0
 VER_TEST_MINOR=1
 
 VER_RECOVERY=1
 
-FW_ADDR=0x280
-RECOVERY_ADDR=0x80
-RECOVERY_IMPL_ADDR=0xa0
+FW_ADDR=0x380
+RECOVERY_ADDR=0x40
+RECOVERY_IMPL_ADDR=0x60
 
 DEFINES=-D VER_MENU_MAJOR=$(VER_MENU_MAJOR) -D VER_MENU_MINOR=$(VER_MENU_MINOR) -D VER_PROGRAMMER_MAJOR=$(VER_PROGRAMMER_MAJOR) -D VER_PROGRAMMER_MINOR=$(VER_PROGRAMMER_MINOR) -D VER_FW_MAJOR=$(VER_FW_MAJOR) -D VER_FW_MINOR=$(VER_FW_MINOR) -D VER_TEST_MAJOR=$(VER_TEST_MAJOR) -D VER_TEST_MINOR=$(VER_TEST_MINOR) -D VER_RECOVERY=$(VER_RECOVERY) -D FW_ADDR=$(FW_ADDR) -D RECOVERY_ADDR=$(RECOVERY_ADDR)
 
@@ -53,40 +53,78 @@ DEFINES=-D VER_MENU_MAJOR=$(VER_MENU_MAJOR) -D VER_MENU_MINOR=$(VER_MENU_MINOR) 
 AVR_BUILD_DIR=$(BUILD_DIR)/avr
 
 AVR=atmega48
-AVR_TARGET=mf64-firmware.bin
+TARGET_FW_M20=mf64-m20-firmware.bin
+TARGET_FW_DOT=mf64-dot-firmware.bin
+TARGET_FW_CHECK1=mf64-avr-check1.bin
+TARGET_FW_CHECK2=mf64-avr-check2.bin
 AVR_CFLAGS+=-Wl,-Ttext=$(FW_ADDR),--section-start=.boot=0x0000,--section-start=.recoveryLookup=$(RECOVERY_ADDR),--section-start=.recovery=$(RECOVERY_IMPL_ADDR),-Map,$(AVR_BUILD_DIR)/avr.map,--cref $(DEFINES)
 
 
-AVR_SRC=main.S cmdFwUpd.S cmdGetEeprom.S cmdGetRam.S cmdGetVersion.S cmdMcType.S cmdReset.S cmdSelect.S cmdSetEeprom.S cmdTest.S cmdWrModeErase.S cmdWrModeReset.S ram.S \
+AVR_FW_SRC=main.S cmdFwUpd.S cmdGetEeprom.S cmdGetRam.S cmdGetVersion.S cmdMcType.S cmdReset.S cmdSelect.S cmdSetEeprom.S cmdTest.S cmdWrModeErase.S cmdWrModeReset.S ram.S \
     cmdGetDefault.S cmdGetPrev.S cmdGetSelected.S cmdLed.S cmdSelectAfterInt.S cmdSelectPrev.S cmdSetDefault.S cmdSetRam.S cmdWrModeAutoSelect.S cmdWrModeProgram.S \
-		eeprom.S led.S reset.S restore.S sendByte.S setSelect.S cmdSelectAfterRestoreInt.S boot.S cmdGetMode.S cmdGetRecoveryVersion.S cmdRecoveryUpd.S recovery.S
+		eeprom.S led.S reset.S restore.S sendByte.S setSelect.S cmdSelectAfterRestoreInt.S boot.S cmdGetMode.S cmdGetRecoveryVersion.S cmdRecoveryUpd.S recovery.S cmdStall.S \
+		waitInt.S
+AVR_FW_M20_SRC=$(AVR_FW_SRC) mainLoopM20.S
+AVR_FW_DOT_SRC=$(AVR_FW_SRC) sync.S mainLoopDot.S
+
+AVR_FW_CHECK1_SRC=mainCheck1.S boot.S
+AVR_FW_CHECK2_SRC=mainCheck2.S boot.S
 
 AVR_CC=avr-gcc 
 AVR_OBJDUMP=avr-objdump
 AVR_SIZE=avr-size
 AVR_OBJ2HEX=avr-objcopy
 AVR_CFLAGS+=-g -Wall -mmcu=$(AVR) -std=gnu99 -O2 -fdata-sections -ffunction-sections #-Wl,--gc-sections #-fdiagnostics-color=always
+AVR_CFLAGS_M20=$(AVR_CFLAGS) -DM20
+AVR_CFLAGS_DOT=$(AVR_CFLAGS) -DDOT
 
 VPATH+=$(AVR_BUILD_DIR) src/avr
 
-AVR_OBJECTS=$(patsubst %.S,$(AVR_BUILD_DIR)/%.o,$(patsubst %.c,$(AVR_BUILD_DIR)/%.o,$(filter-out %.enum,$(AVR_SRC))))
-AVR_DEPS=$(patsubst %.S,$(AVR_BUILD_DIR)/%.d,$(patsubst %.c,$(AVR_BUILD_DIR)/%.d,$(filter-out %.enum,$(AVR_SRC))))
+AVR_FW_M20_OBJECTS=$(patsubst %.S,$(AVR_BUILD_DIR)/m20_%.o,$(AVR_FW_M20_SRC))
+AVR_FW_DOT_OBJECTS=$(patsubst %.S,$(AVR_BUILD_DIR)/dot_%.o,$(AVR_FW_DOT_SRC))
+AVR_FW_CHECK1_OBJECTS=$(patsubst %.S,$(AVR_BUILD_DIR)/%.o,$(AVR_FW_CHECK1_SRC))
+AVR_FW_CHECK2_OBJECTS=$(patsubst %.S,$(AVR_BUILD_DIR)/%.o,$(AVR_FW_CHECK2_SRC))
+AVR_DEPS=$(patsubst %.S,$(AVR_BUILD_DIR)/m20_%.d,$(AVR_FW_M20_SRC)) $(patsubst %.S,$(AVR_BUILD_DIR)/dot_%.d,$(AVR_FW_DOT_SRC)) $(patsubst %.S,$(AVR_BUILD_DIR)/%.d,$(AVR_FW_CHECK1_SRC) $(AVR_FW_CHECK2_SRC))
 
 DEFAULT_D64=src/c64/default.d64
 
 
 -include $(AVR_DEPS)
 
-avr: $(BUILD_DIR)/$(AVR_TARGET)
+avr: $(BUILD_DIR)/$(TARGET_FW_M20) $(BUILD_DIR)/$(TARGET_FW_DOT)
+#avr: $(BUILD_DIR)/$(TARGET_FW) $(BUILD_DIR)/$(TARGET_FW_CHECK1) $(BUILD_DIR)/$(TARGET_FW_CHECK2)
 
 
 $(AVR_BUILD_DIR)/%.o: %.S Makefile config.inc
 	@mkdir -p $(AVR_BUILD_DIR)
 	$(AVR_CC) -I$(AVR_BUILD_DIR) $(AVR_CFLAGS) -c -MMD $< -o $@
 
-$(AVR_BUILD_DIR)/$(patsubst %.bin,%.elf,$(AVR_TARGET)): $(AVR_OBJECTS)
-	$(AVR_CC)  $(AVR_CFLAGS) $(AVR_OBJECTS) -o $@
-	($(AVR_OBJDUMP) -S --disassemble -p -w -t $@; $(AVR_OBJDUMP) -j.data  -s -w $@) >$(AVR_BUILD_DIR)/$(AVR_TARGET).lst
+$(AVR_BUILD_DIR)/m20_%.o: %.S Makefile config.inc
+	@mkdir -p $(AVR_BUILD_DIR)
+	$(AVR_CC) -I$(AVR_BUILD_DIR) $(AVR_CFLAGS_M20) -c -MMD $< -o $@
+
+$(AVR_BUILD_DIR)/dot_%.o: %.S Makefile config.inc
+	@mkdir -p $(AVR_BUILD_DIR)
+	$(AVR_CC) -I$(AVR_BUILD_DIR) $(AVR_CFLAGS_DOT) -c -MMD $< -o $@
+
+$(AVR_BUILD_DIR)/$(patsubst %.bin,%.elf,$(TARGET_FW_M20)): $(AVR_FW_M20_OBJECTS)
+	$(AVR_CC)  $(AVR_CFLAGS_M20) $(AVR_FW_M20_OBJECTS) -o $@
+	($(AVR_OBJDUMP) -S --disassemble -p -w -z -t $@; $(AVR_OBJDUMP) -j.data  -s -w $@) >$(AVR_BUILD_DIR)/$(TARGET_FW_M20).lst
+	$(AVR_SIZE) -C --mcu=$(AVR) $@
+
+$(AVR_BUILD_DIR)/$(patsubst %.bin,%.elf,$(TARGET_FW_DOT)): $(AVR_FW_DOT_OBJECTS)
+	$(AVR_CC)  $(AVR_CFLAGS_DOT) $(AVR_FW_DOT_OBJECTS) -o $@
+	($(AVR_OBJDUMP) -S --disassemble -p -w -z -t $@; $(AVR_OBJDUMP) -j.data  -s -w $@) >$(AVR_BUILD_DIR)/$(TARGET_FW_DOT).lst
+	$(AVR_SIZE) -C --mcu=$(AVR) $@
+
+$(AVR_BUILD_DIR)/$(patsubst %.bin,%.elf,$(TARGET_FW_CHECK1)): $(AVR_FW_CHECK1_OBJECTS)
+	$(AVR_CC)  $(AVR_CFLAGS) $(AVR_FW_CHECK1_OBJECTS) -o $@
+	($(AVR_OBJDUMP) -S --disassemble -p -w -z -t $@; $(AVR_OBJDUMP) -j.data  -s -w $@) >$(AVR_BUILD_DIR)/$(TARGET_FW_CHECK1).lst
+	$(AVR_SIZE) -C --mcu=$(AVR) $@
+
+$(AVR_BUILD_DIR)/$(patsubst %.bin,%.elf,$(TARGET_FW_CHECK2)): $(AVR_FW_CHECK2_OBJECTS)
+	$(AVR_CC)  $(AVR_CFLAGS) $(AVR_FW_CHECK2_OBJECTS) -o $@
+	($(AVR_OBJDUMP) -S --disassemble -p -w -z -t $@; $(AVR_OBJDUMP) -j.data  -s -w $@) >$(AVR_BUILD_DIR)/$(TARGET_FW_CHECK2).lst
 	$(AVR_SIZE) -C --mcu=$(AVR) $@
 
 $(BUILD_DIR)/%.bin: $(AVR_BUILD_DIR)/%.elf
@@ -155,7 +193,8 @@ $(C64_BUILD_DIR)/%.o: %.c Makefile
 	@mkdir -p $(C64_BUILD_DIR)
 	$(C64_CC) -o $@ -I$(C64_BUILD_DIR) $(C64_CFLAGS) -c $< 
 
-$(C64_BUILD_DIR)/mainUpd.o: $(BUILD_DIR)/$(AVR_TARGET)
+$(C64_BUILD_DIR)/mainUpd.o: $(BUILD_DIR)/$(TARGET_FW_M20) $(BUILD_DIR)/$(TARGET_FW_DOT)
+$(C64_BUILD_DIR)/mainRecoveryUpd.o: $(BUILD_DIR)/$(TARGET_FW_M20) $(BUILD_DIR)/$(TARGET_FW_DOT)
 
 $(C64_BUILD_DIR)/%.o: %.s Makefile $(ASM_INC)
 	@mkdir -p $(C64_BUILD_DIR)
@@ -201,7 +240,7 @@ $(VERSION_FILE): Makefile
 	echo $(TARGET_PROGRAMMER): $(VER_PROGRAMMER_MAJOR).$(VER_PROGRAMMER_MINOR) >> $(VERSION_FILE)
 	echo $(TARGET_TEST): $(VER_TEST_MAJOR).$(VER_TEST_MINOR) >> $(VERSION_FILE)
 	echo $(TARGET_UPD): $(VER_FW_MAJOR).$(VER_FW_MINOR) >> $(VERSION_FILE)
-	echo $(AVR_TARGET): $(VER_FW_MAJOR).$(VER_FW_MINOR) >> $(VERSION_FILE)
+	echo $(TARGET_FW): $(VER_FW_MAJOR).$(VER_FW_MINOR) >> $(VERSION_FILE)
 	echo $(TARGET_RECOVERY_UPD): $(VER_RECOVERY) >> $(VERSION_FILE)
 
 

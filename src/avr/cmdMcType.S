@@ -19,7 +19,7 @@
 
 .text
 cmdMcType:
-  ldi rTmp,4
+  ldi rTmp,MC_TYPE
   rcall sendByte
   rjmp mainBegin
 

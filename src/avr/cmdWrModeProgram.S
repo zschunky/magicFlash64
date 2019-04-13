@@ -19,42 +19,62 @@
 
 .text
 cmdWrModeProgram:
+#ifdef M20
   sbrc rSel13Old,0
   rjmp cmdWrModeProgramOld
+#endif M20
 
   sbi SEL13NEW_DDR,SEL13NEW_P
   cbi SEL14_DDR,SEL14_P
+#ifdef DOT
+  ; enable writes to flash from now on
+  cbi WE_PORT,WE_P
+#endif
+  dotWait 2
   waitWr
 
+#ifdef M20
   ; toggle we
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
+#endif
 
   cbi SEL13NEW_DDR,SEL13NEW_P
   sbi SEL14_DDR,SEL14_P
   waitWr
 
+#ifdef M20
   ; toggle we
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
+#endif
 
   sbi SEL13NEW_DDR,SEL13NEW_P
   cbi SEL14_DDR,SEL14_P
   waitWr
 
+#ifdef M20
   ; toggle we
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
+#endif
 
   rcall setSelect
   waitWr
 
+#ifdef M20
   ; toggle we
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
+#endif
 
+#ifdef DOT
+  ; disable writes to flash
+  sbi WE_PORT,WE_P
+#endif
   rjmp mainLoop
 
+#ifdef M20
 cmdWrModeProgramOld:
   sbi SEL13OLD_DDR,SEL13OLD_P
   cbi SEL14_DDR,SEL14_P
@@ -88,4 +108,4 @@ cmdWrModeProgramOld:
   sbi WE_PORT,WE_P
 
   rjmp mainLoop
-
+#endif

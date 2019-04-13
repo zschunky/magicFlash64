@@ -18,18 +18,7 @@
 #include "config.inc"
 
 .text
-  ; S E L E C T   S L O T
-cmdSelect:
-  ; get argument
-  waitOe
-
-  ; set prev
-  mov rPrev,rSelect
-  mov rSelect,rTmp
-
-  ; apply selected slot
-  rcall setSelect
-
-  ; done, back to mainloop
-  rjmp mainLoop
-
+  ; stall
+cmdStall:
+1:
+  rjmp 1b

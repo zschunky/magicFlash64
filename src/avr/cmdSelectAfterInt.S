@@ -19,82 +19,27 @@
 
 .text
 cmdSelectAfterInt:
-  ; reset rLed
-  ldi rLed,0
-  rcall setLed
-
   ; get ignoreCount argument
   waitOe
-  in rTmp2,ADDR_PIN
-  andi rTmp2,ADDR_MASK
-  inc rTmp2
+  inc rTmp
+  mov rTmp10,rTmp
+  dotWait 2
 
   ; get slot argument
   waitOe
-  in rTmp,ADDR_PIN
-  andi rTmp,ADDR_MASK
+  mov rTmp9,rTmp
 
-  ; wait for 3 writes in a row (brk opcode)
-2:
-    waitWr
-
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-
-    sbic RW_PIN,RW_P
-    rjmp 2b
-
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-
-    sbic RW_PIN,RW_P
-    rjmp 2b
-
-    dec rTmp2
-    brne 2b
-
-  ; set prev and select
-  mov rPrev,rSelect
-  mov rSelect,rTmp
-
-  rcall setSelect
+  ; reset rLed
+  ldi rLed,0
+  rcall setLed
+  
+  mov rTmp,rTmp9
+  rcall waitInt
 
   ; reset rLed
   ldi rLed,8
   rcall setLed
 
   ; done, back to mainLoop
-  rjmp mainLoop
+  rjmp mainBegin
 

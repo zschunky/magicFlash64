@@ -17,19 +17,24 @@
 
 #include "config.inc"
 
+.global __vectors
+
+.section .recovery,"ax",@progbits
+recovery:
+  rjmp __vectors
+
 .text
-  ; S E L E C T   S L O T
-cmdSelect:
-  ; get argument
-  waitOe
+.global main
+main:
+  ldi rTmp,0x55
+  ldi rTmp2,0xaa
+  out DDRC,rTmp
+  out PORTC,rTmp2
 
-  ; set prev
-  mov rPrev,rSelect
-  mov rSelect,rTmp
+  out DDRD,rTmp2
+  out PORTD,rTmp
 
-  ; apply selected slot
-  rcall setSelect
-
-  ; done, back to mainloop
-  rjmp mainLoop
-
+  out DDRB,rTmp2
+  out PORTB,rTmp
+1:
+  rjmp 1b

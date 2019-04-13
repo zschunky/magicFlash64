@@ -48,7 +48,7 @@ reset:
 RESET_VECT:
 ; c64 reset vector
   sbic RESET_PIN,RESET_P
-  reti
+  rjmp mainBegin
 
   ; remember led status
   push rLed

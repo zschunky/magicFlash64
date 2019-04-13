@@ -21,9 +21,7 @@
   ; L E D
 cmdLed:
   ; get argument
-  waitOe
-  in rLed,ADDR_PIN
-  andi rLed,ADDR_MASK
+  waitOe rLed
   
   ; set led
   rcall setLed

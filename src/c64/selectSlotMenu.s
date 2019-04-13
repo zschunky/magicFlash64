@@ -559,9 +559,21 @@ keyReturn:
 :
     lda #BOOT_SLOT
     jsr _ekSelectAfterRestoreInt
+
 :
+      lda $d012
+      cmp #$4c
+      bne :-
+:
+      lda $d012
+      cmp #$4d
+      bne :-
+    lda $d011
+    bmi :-
+  
   ldx #$ff
   txs
+
   jmp ($fffc)
 
 

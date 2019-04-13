@@ -145,6 +145,8 @@ dataInitDone:
   lda #0
   sta $dd0e
   sta $dd0f
+  sta $dc0e
+  sta $dc0f
   lda #<10000
   sta $dd04
   lda #>10000
@@ -218,6 +220,7 @@ irq:
   rti
 .export nmi
 nmi:
+  sei
   pha
   txa
   pha

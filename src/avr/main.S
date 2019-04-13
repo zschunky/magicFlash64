@@ -32,6 +32,7 @@ main:
   sbi RESET_PORT,RESET_P
   sbi OE_PORT,OE_P
 
+#ifdef M20
   ; check for sel13 connection (check for fuse if reset is disabled)
   ldi zl,3
   ldi zh,0
@@ -42,6 +43,7 @@ main:
   sbrs r0,7
   ldi rTmp,1
   mov rSel13Old,rTmp
+#endif
 
   ; set constant registers
   ldi rLookup,lo8(lookup)
@@ -60,19 +62,30 @@ main:
   mov rSelect,rTmp
   rcall setSelect
 
+  ; initialize sync
+#ifdef DOT
+  rcall syncInit
+#endif
+
   ; reset prev and rRestoreSelect
   ldi rTmp,0xff
   mov rPrev,rTmp
   mov rRestoreSelect,rTmp
 
   ; configure timer0, overflow at 625Hz
+#ifdef M20
   ldi rTmp,124
+#endif
+#ifdef DOT
+  ldi rTmp,49
+#endif
   out OCR0A,rTmp
   ldi rTmp,2<<WGM00
   out TCCR0A,rTmp
   ldi rTmp,4<<CS00
   out TCCR0B,rTmp
 
+#ifdef M20
   ; configure timer2
   ldi rTmp,75
   sts OCR2A,rTmp
@@ -80,6 +93,7 @@ main:
   sts OCR2B,rTmp
   ldi rTmp,1<<CS20
   sts TCCR2B,rTmp
+#endif
 
   ; copy lookup table from flash into ram
   ldi rTmp4,lo8(__data_load_end)
@@ -122,76 +136,5 @@ mainBegin:
   out SPL,rTmp
   sei
 
-  ; M A I N L O O P
-mainLoop:
-  ; check for magic sequence of 1st value and restart counter2
-  waitOe
-  in rTmp,ADDR_PIN
-  sts TCNT2,r00
-  andi rTmp,ADDR_MASK
-mainLoop0:
-  cpi rTmp,0
-  brne mainLoop
-
-  ; reset counter2 flags
-  out TIFR2,rFF
-
-  ; check for magic sequence of 2nd value and restart counter2
-  waitOe
-  in rTmp,ADDR_PIN
-  sts TCNT2,r00
-  andi rTmp,ADDR_MASK
-  cpi rTmp,0x2a
-  brne mainLoop0
-
-  ; reset counter2 flags and check if received magic value in time
-  in rTmp,TIFR2
-  out TIFR2,rFF
-  cpi rTmp,1<<OCF2A
-  brne mainLoop
-
-  ; check for magic sequence of 3rd value and restart counter2
-  waitOe
-  in rTmp,ADDR_PIN
-  sts TCNT2,r00
-  andi rTmp,ADDR_MASK
-  cpi rTmp,0x15
-  brne mainLoop0
-
-  ; reset counter2 flags and check if received magic value in time
-  in rTmp,TIFR2
-  out TIFR2,rFF
-  cpi rTmp,1<<OCF2A
-  brne mainLoop
-
-  ; check for magic sequence of 4th value and restart counter2
-  waitOe
-  in rTmp,ADDR_PIN
-  sts TCNT2,r00
-  andi rTmp,ADDR_MASK
-  cpi rTmp,0x3f
-  brne mainLoop0
-
-  ; reset counter2 flags and check if received magic value in time
-  in rTmp,TIFR2
-  out TIFR2,rFF
-  cpi rTmp,1<<OCF2A
-  brne mainLoop
-
-  ; get command
-  waitOe
-  in rCmd,ADDR_PIN
-  andi rCmd,CMD_MASK
-
-  ; get cmd-func-ptr from lookup and jump to it
-  add rCmd,rLookup
-  ld zl,x+
-  ld zh,x
-  ijmp
-
-cmdNop:
   rjmp mainLoop
-
-
-
 

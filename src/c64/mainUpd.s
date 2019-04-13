@@ -30,6 +30,9 @@ __LOADADDR__:
 .segment "EXEHDR"
 .byte $0B, $08, $F0, $02, $9E, $32, $30, $36, $31, $00, $00, $00
 
+.bss
+fwPtr:
+  .res 2
 
 .segment "STARTUP"
 .export __STARTUP__
@@ -51,22 +54,58 @@ __STARTUP__:
   jsr _ekGetSelected
   sta slot
 
+  jsr _ekGetMcType
+  cmp #MC_TYPE_ATMEGA48_DOT
+  bne :+
+    lda #<fwDot
+    sta fwPtr
+    lda #>fwDot
+    sta fwPtr+1
+    jmp updCheckVersion
+:
+  cmp #MC_TYPE_ATMEGA48_M20
+  beq :+
+  cmp #0
+  bne :++
+:
+    lda #<fwM20
+    sta fwPtr
+    lda #>fwM20
+    sta fwPtr+1
+    jmp updCheckVersion
+:
+  cli
+
+  ldx #0
+:
+    lda wrongMcType,x
+    beq :+
+    jsr $ffd2
+    inx
+    bne :-
+:
+
+    rts
+
+updCheckVersion:
+
   jsr _ekGetVersion
   
   ; if mj >= 1 ; bootLoader and recovery are present
   cmp #0
   beq :+
-    lda #<(fw+FW_ADDR)
-    ldx #>(fw+FW_ADDR)
+    lda fwPtr
+    clc
+    adc #<FW_ADDR
+    sta fwPtr
+    lda fwPtr+1
+    adc #>FW_ADDR
+    sta fwPtr+1
     jmp updCont
 :
   ; else if minor >= 1 ; old 0.x fw
   cpx #0
-  beq :+
-    lda #<fw
-    ldx #>fw
-    jmp updCont
-:
+  bne updCont
   ; else 
   jsr _ekGetMode
   ;   if mode == 1 ; recovery mode active
@@ -75,8 +114,13 @@ __STARTUP__:
     lda #55
     sta slot
 
-    lda #<(fw+FW_ADDR)
-    ldx #>(fw+FW_ADDR)
+    lda fwPtr
+    clc
+    adc #<FW_ADDR
+    sta fwPtr
+    lda fwPtr+1
+    adc #>FW_ADDR
+    sta fwPtr+1
     jmp updCont
 :
   ;   else if mode == 0 ; everything responded with 0 -> no magicFlash64 found
@@ -109,7 +153,20 @@ __STARTUP__:
     rts
 
 updCont:
+  lda fwPtr
+  ldx fwPtr+1
   jsr _ekFwUpd
+
+  ; give atmega some time to restart
+  ldx #0
+  ldy #32
+:
+    dex
+    bne :-
+    dey
+    bne :-
+
+
 
   lda slot
   jsr _ekSelect
@@ -152,11 +209,19 @@ nothingFoundMsg:
 .export invalidModeMsg
 invalidModeMsg:
   .byte "invalid mode detected",13,0
-.export fw
-fw:
-  .incbin "mf64-firmware.bin"
-fwEnd:
-  .res $1000-(fwEnd-fw),$ff
+.export wrongMcType
+wrongMcType:
+  .byte "unknown microcontroller detected - abort",13,0
+.export fwM20
+fwM20:
+  .incbin "mf64-m20-firmware.bin"
+fwM20End:
+  .res $1000-(fwM20End-fwM20),$ff
+.export fwDot
+fwDot:
+  .incbin "mf64-dot-firmware.bin"
+fwDotEnd:
+  .res $1000-(fwDotEnd-fwDot),$ff
   
 
 

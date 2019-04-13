@@ -30,7 +30,6 @@ cmdFwUpdImpl:
   ; set pagesize
   ldi xl,lo8(SPM_PAGESIZE)
   ldi xh,hi8(SPM_PAGESIZE)
-  ldi rTmp,ADDR_MASK
 
   ; set total max of pages
   ldi rTmp4,lo8((0x1000-FW_ADDR)/SPM_PAGESIZE)
@@ -39,41 +38,42 @@ flashLoop:
   movw _z,_y
 
 flashBufferLoop:
-  waitOe
-  in r0,ADDR_PIN
-  and r0,rTmp
+#if DOT
+  push zh
+  push zl
+#endif
+  SYNC
+  waitOe              ; 0+4
+  cpi rTmp,ADDR_MASK  ; 4+1
+  breq flashDone      ; 5+2/1
+  mov r0,rTmp         ; 6+1
+  dotWait 1           ; 7+1
 
-  cp r0,rTmp
-  breq flashDone
+  waitOe rTmp2        ; 0+4
+  cpi rTmp2,ADDR_MASK ; 4+1
+  breq flashDone      ; 5+2/1
 
-  waitOe
-  in rTmp2,ADDR_PIN
-  and rTmp2,rTmp
+  swap rTmp2          ; 6+1
+  or r0,rTmp2         ; 7+1
 
-  cp rTmp2,rTmp
-  breq flashDone
-  
-  swap rTmp2
-  or r0,rTmp2
+  waitOe              ; 0+4
+  cpi rTmp,ADDR_MASK  ; 4+1
+  breq flashDone      ; 5+2/1
+  mov r1,rTmp         ; 6+1
+  dotWait 1           ; 7+1
 
-  waitOe
-  in r1,ADDR_PIN
-  and r1,rTmp
+  waitOe rTmp2        ; 0+4
+  cpi rTmp2,ADDR_MASK ; 4+1
+  breq flashDone      ; 5+2/1
+  swap rTmp2          ; 6+1
+  or r1,rTmp2         ; 7+1
 
-  cp r1,rTmp
-  breq flashDone
+#if DOT
+  pop zl
+  pop zh
+#endif
 
-  waitOe
-  in rTmp2,ADDR_PIN
-  and rTmp2,rTmp
-
-  cp rTmp2,rTmp
-  breq flashDone
-  
-  swap rTmp2
-  or r1,rTmp2
-
-  ldi rTmp2,(1<<SPMEN)
+  ldi rTmp2,(1<<SPMEN) 
   out SPMCSR,rTmp2
 
   spm
@@ -90,6 +90,11 @@ flashBufferLoop:
   rjmp flashLoop
 
 flashDone:
+#if DOT
+  pop zl
+  pop zh
+#endif
+
   cpi rTmp3,SPM_PAGESIZE/2
   breq flashExit
   rcall flashErasePgm

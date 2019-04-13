@@ -22,7 +22,7 @@
 .define CMD_WR_MODE_AUTO_SELECT 6
 .define CMD_WR_MODE_PROGRAM 8
 .define CMD_WR_MODE_ERASE 10
-.define CMD_FW_UPD 12
+.define CMD_FW_UPD_OLD 12
 .define CMD_SET_DEFAULT 14
 .define CMD_GET_DEFAULT 16
 .define CMD_GET_SELECTED 18
@@ -41,6 +41,9 @@
 .define CMD_GET_MODE 44
 .define CMD_GET_RECOVERY_VERSION 46
 .define CMD_RECOVERY_UPD 48
+.define CMD_STALL 50
+.define CMD_FW_UPD 52
+
 
 .macro ROMRD addr
   bit $e000|((addr)&$1fff)

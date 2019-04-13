@@ -20,48 +20,74 @@
 .text
   ; WR MODE AUTO SELECT -> Flash auto select mode
 cmdWrModeAutoSelect:
+#ifdef M20
   sbrc rSel13Old,0
   rjmp cmdWrModeAutoSelectOld
+#endif
 
+  dotWait 2
   
   sbi SEL13NEW_DDR,SEL13NEW_P
   cbi SEL14_DDR,SEL14_P
+
+#ifdef DOT
+  ; enable write to flash from now on
+  cbi WE_PORT,WE_P
+#endif
   waitWr
 
+#ifdef M20
   ; toggle we
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
+#endif
 
   cbi SEL13NEW_DDR,SEL13NEW_P
   sbi SEL14_DDR,SEL14_P
   waitWr
 
+#ifdef M20
   ; toggle we
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
+#endif
 
   sbi SEL13NEW_DDR,SEL13NEW_P
   cbi SEL14_DDR,SEL14_P
   waitWr
 
+#ifdef M20
   ; toggle we
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
+#endif
 
   sbi SEL13NEW_DDR,SEL13NEW_P
   out SEL14_DDR,rSel1418Mask
+  dotWait 1
   waitOe
+
+  dotWait 4
 
   waitWr
 
+#ifdef M20
   ; toggle we
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
+#endif
+
+#ifdef DOT
+  ; disable writes
+  sbi WE_PORT,WE_P
+#endif
+
 
   rcall setSelect
 
   rjmp mainLoop
 
+#ifdef M20
 cmdWrModeAutoSelectOld:
   sbi SEL13OLD_DDR,SEL13OLD_P
   cbi SEL14_DDR,SEL14_P
@@ -101,3 +127,4 @@ cmdWrModeAutoSelectOld:
 
   rjmp mainLoop
 
+#endif

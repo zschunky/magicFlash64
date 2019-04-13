@@ -20,6 +20,11 @@
 .include "zeropage.inc"
 .include "breakPoint.inc"
 
+;incBegin
+.define MC_TYPE_ATMEGA48_M20 4
+.define MC_TYPE_ATMEGA48_DOT 104
+;incEnd
+
 .data
 
 .export _ekError
@@ -244,6 +249,27 @@ _ekRecoveryUpd:
 
   jsr noBad
   SEQ CMD_RECOVERY_UPD
+
+  jmp ekFwUpdLoop
+
+; void __fastcall__ ekFwUpdOld(uint8_t *data, uint16_t len);
+.export _ekFwUpdOld
+_ekFwUpdOld:
+  php
+  sei
+
+  sta tmp3
+  stx tmp4
+
+  lda #$40
+  sta tmp5
+
+  lda #<($1000/2/$20)
+  sta tmp6
+
+  
+  jsr noBad
+  SEQ CMD_FW_UPD_OLD
 
   jmp ekFwUpdLoop
 

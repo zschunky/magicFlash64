@@ -19,11 +19,22 @@
 
 .text
 cmdWrModeReset:
+#ifdef DOT
+  ; enable writes to flash from now on
+  cbi WE_PORT,WE_P
+#endif
+  dotWait 6
   waitWr
 
+#ifdef M20
   ; toggle we
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
+#endif
 
+#ifdef DOT
+  ; disable writes to flash
+  sbi WE_PORT,WE_P
+#endif
   rjmp mainLoop
 

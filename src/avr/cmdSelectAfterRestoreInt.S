@@ -21,9 +21,7 @@
 .text
 cmdSelectAfterRestoreInt:
   ; get argument
-  waitOe
-  in rTmp,ADDR_PIN
-  andi rTmp,ADDR_MASK
+  waitOe rTmp
 
   ; set rRestoreSelect
   mov rRestoreSelect,rTmp

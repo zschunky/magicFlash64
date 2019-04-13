@@ -19,56 +19,82 @@
 
 .text
 cmdWrModeErase:
+#ifdef M20
   sbrc rSel13Old,0
   rjmp cmdWrModeEraseOld
+#endif
 
-  sbi SEL13NEW_DDR,SEL13NEW_P
-  cbi SEL14_DDR,SEL14_P
-  waitWr
+  sbi SEL13NEW_DDR,SEL13NEW_P  ; 0+2
+  cbi SEL14_DDR,SEL14_P        ; 2+2
 
+#ifdef DOT
+  ; enable writes to flash from now on
+  cbi WE_PORT,WE_P             ; 4+2
+#endif
+  dotWait 2                    ; 6+2
+  waitWr                       ; 0 +4
+
+#ifdef M20
   ; toggle we
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
+#endif
 
-  cbi SEL13NEW_DDR,SEL13NEW_P
-  sbi SEL14_DDR,SEL14_P
-  waitWr
+  cbi SEL13NEW_DDR,SEL13NEW_P  ; 4+2
+  sbi SEL14_DDR,SEL14_P        ; 6+2
+  waitWr                       ; 0+4
 
+#ifdef M20
   ; toggle we
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
+#endif
 
-  sbi SEL13NEW_DDR,SEL13NEW_P
-  cbi SEL14_DDR,SEL14_P
-  waitWr
+  sbi SEL13NEW_DDR,SEL13NEW_P  ; 4+2
+  cbi SEL14_DDR,SEL14_P        ; 6+2
+  waitWr                       ; 0+4
 
+#ifdef M20
   ; toggle we
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
+#endif
+  dotWait 4                    ; 4+4
 
-  waitWr
+  waitWr                       ; 0+4
 
+#ifdef M20
   ; toggle we
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
+#endif
 
-  cbi SEL13NEW_DDR,SEL13NEW_P
-  sbi SEL14_DDR,SEL14_P
-  waitWr
+  cbi SEL13NEW_DDR,SEL13NEW_P ; 4+2
+  sbi SEL14_DDR,SEL14_P       ; 6+2
+  waitWr                      ; 0+4
 
+#ifdef M20
   ; toggle we
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
+#endif
 
-  rcall setSelect
-  waitWr
+  rcall setSelect             ; 4+(2+2)
+  waitWr                      ; 0+4
 
+#ifdef M20
   ; toggle we
   cbi WE_PORT,WE_P
   sbi WE_PORT,WE_P
+#endif
 
-  rjmp mainLoop
+#ifdef DOT
+  ; disable writes to flash
+  sbi WE_PORT,WE_P            ; 4+2
+#endif
+  rjmp mainLoop               ; 6+2
 
+#ifdef M20
 cmdWrModeEraseOld:
   sbi SEL13OLD_DDR,SEL13OLD_P
   cbi SEL14_DDR,SEL14_P
@@ -116,4 +142,4 @@ cmdWrModeEraseOld:
   sbi WE_PORT,WE_P
 
   rjmp mainLoop
-
+#endif

@@ -20,18 +20,16 @@
 .text
 cmdSetEeprom:
   ; get address argument
-  waitOe
-  in zl,ADDR_PIN
-  andi zl,ADDR_MASK
+  waitOe zl
+  dotWait 4
 
   ; get lo nibble data argument
-  waitOe
-  in rTmp2,ADDR_PIN
+  waitOe rTmp2
   andi rTmp2,0xf
+  dotWait 3
 
   ; get hi nibble data argument
   waitOe
-  in rTmp,ADDR_PIN
   andi rTmp,0xf
   swap rTmp
   or rTmp,rTmp2

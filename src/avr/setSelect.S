@@ -19,37 +19,7 @@
 
 .section .recovery,"ax",@progbits
 .global setSelectImpl
-setSelectImpl:
-  mov rTmp,rSelect
-
-  sbrc rSel13Old,0
-  rjmp setSelectOld
-
-  ; setup sel13
-  cbi SEL13NEW_DDR,SEL13NEW_P
-  sbrs rTmp,0
-  sbi SEL13NEW_DDR,SEL13NEW_P
-
-  ; set2p sel14-18
-  lsl rTmp
-  lsl rTmp
-  and rTmp,rSel1418Mask
-  eor rTmp,rSel1418Mask
-  out SEL14_DDR,rTmp
-
-  ret
-
-setSelectOld:
-  ; setup sel13
-  cbi SEL13OLD_DDR,SEL13OLD_P
-  sbrs rTmp,0
-  sbi SEL13OLD_DDR,SEL13OLD_P
-
-  ; set2p sel14-18
-  lsl rTmp
-  lsl rTmp
-  and rTmp,rSel1418Mask
-  eor rTmp,rSel1418Mask
-  out SEL14_DDR,rTmp
-
-  ret
+setSelectImpl:                       
+  setSelPrep   ; 3+1
+  setSelExec   ; 4+2
+  ret          ; 6+4

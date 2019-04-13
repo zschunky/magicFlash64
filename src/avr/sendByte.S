@@ -26,36 +26,40 @@ sendByteImpl:
 
   ; set counter to 8 bits
   ldi rTmp3,8
+5:
+  SYNC
 4:
   ; wait for read at 0x00
-  waitOe
-  in rTmp2,ADDR_PIN
-  andi rTmp2,ADDR_MASK
-  brne 4b
+  waitOe rTmp2       ; 0+4
+  tst rTmp2          ; 4+1
+  dotWait 1          ; 5+1
+  brne 4b            ; 6+2/1
 
   ; shift value and skip if current bit is not set
-  lsr rTmp
-  brcc 2f
+  lsr rTmp           ; 7+1
+  brcc 2f            ; 0+2/1
 
   ; fire nmi
-  cbi NMI_PORT,NMI_P
-  sbi NMI_DDR,NMI_P
+  cbi NMI_PORT,NMI_P ; 1+2
+  sbi NMI_DDR,NMI_P  ; 3+2
+
+  dotWait 3          ; 5+3
+
 
   ; wait for read at 0x3f (nmi vector)
 3:
-  waitOe
-  in rTmp2,ADDR_PIN
-  andi rTmp2,ADDR_MASK
-  cpi rTmp2,ADDR_MASK
-  brne 3b
+  waitOe rTmp2         ; 0+4
+  dotWait 1            ; 4+1
+  cpi rTmp2,ADDR_MASK  ; 5+1
+  brne 3b              ; 6+2/1
 
   ; clear nmi
-  cbi NMI_DDR,NMI_P
-  sbi NMI_PORT,NMI_P
+  cbi NMI_DDR,NMI_P    ; 7+2
+  sbi NMI_PORT,NMI_P   ; 1+2
 2:
   ; decrement bit counter and repeat if not yet done
   dec rTmp3
-  brne 4b
+  brne 5b
 
 ;  ; make sure nmi is high
 ;1:

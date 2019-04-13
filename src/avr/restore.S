@@ -22,67 +22,20 @@
 .global INT0_vect  
 INT0_vect:
   ; check if slot change is requested
-  ldi rTmp,0xff
-  cp rRestoreSelect,rTmp
-  breq 3f
-    ; wait for 3 writes in a row (brk opcode)
-2:
-    waitWr
+  cp rRestoreSelect,rFF
+  breq noRestoreSelect
+    ldi rTmp2,5
+    mov rTmp10,rTmp2
 
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
+    mov rTmp,rRestoreSelect
+    mov rRestoreSelect,rFF
 
-    sbic RW_PIN,RW_P
-    rjmp 2b
-
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-    nop
-
-    sbic RW_PIN,RW_P
-    rjmp 2b
-
-    ; select new slot
-    mov rPrev,rSelect
-    mov rSelect,rRestoreSelect
-    mov rRestoreSelect,rTmp
-    rcall setSelect
+    rcall waitInt
 
     ; back to main
     rjmp mainBegin
 
-3:
+noRestoreSelect:
   ; remember led status
   push rLed
   
