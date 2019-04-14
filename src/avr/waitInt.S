@@ -92,9 +92,6 @@ pollWr2:
     rjmp pollWr2     ; 6+2/1
 #endif
   setSelExec
-  sbi SCL_DDR,SCL_P
-
-
 
   ret
 
