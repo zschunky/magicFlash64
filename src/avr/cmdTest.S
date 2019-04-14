@@ -72,7 +72,7 @@ cmdTestWr:
   ldi rTmp2,32
   SYNC
 cmdTestWrLoop:
-  waitWr
+  waitWr rTmp
 
   cp rTmp3,rTmp      ; 5
   brne cmdTestFailWr ; 6

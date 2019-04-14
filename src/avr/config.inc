@@ -142,7 +142,7 @@
   .if \num >= 2
     rjmp 9f
 9:
-    dotWait "(\num - 2)"
+    wait "(\num - 2)"
   .endif
   .if \num == 1
     nop
@@ -166,7 +166,7 @@
   andi \reg,ADDR_MASK
 .endm
 
-.macro waitWr reg=rTmp
+.macro waitWr reg
   ; loop while RW is low
 1:
   sbis RW_PIN,RW_P
@@ -180,8 +180,10 @@
   ;rjmp 1b
 ;  nop
 ;  nop
+.ifnb \reg
   in \reg,ADDR_PIN
   andi \reg,ADDR_MASK
+.endif
 .endm
 
 .macro dotWait num
@@ -220,9 +222,13 @@
 1:
   ; 4 cycles left
 .endm
-.macro waitWr reg=rTmp
+.macro waitWr reg
 1:
+.ifnb \reg
   in \reg,ADDR_PIN
+.else
+  nop
+.endif
   sbis RW_PIN,RW_P
     rjmp 1f
   wait 3

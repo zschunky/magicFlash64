@@ -31,7 +31,7 @@ waitInt:
 
 #ifdef M20
 pollWr:
-    waitWr rTmp3
+    waitWr
     wait 18
 
     sbic RW_PIN,RW_P
@@ -92,8 +92,10 @@ pollWr2:
     rjmp pollWr2     ; 6+2/1
 #endif
   setSelExec
-
   sbi SCL_DDR,SCL_P
+
+
+
   ret
 
 #ifdef DOT
